@@ -13,7 +13,8 @@ screen.fill(WHITE)
 
 # draw grid
 tiles = draw_grid(screen, rows=20, cols=23)
-get_cords(tiles[24])
+for tile in tiles:
+    print(tile.cord)
 # main loop
 running = True
 while running:
@@ -26,8 +27,6 @@ while running:
 
     # update the display
     pygame.display.flip()
-
-
 # quit pygame
 
 pygame.quit()
