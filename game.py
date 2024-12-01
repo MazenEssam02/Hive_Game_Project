@@ -1,7 +1,7 @@
 import pygame
 import sys
 from constant import WIDTH, HEIGHT, WHITE, RADIUS
-from hex import draw_grid, get_cords
+from hex import draw_grid #, get_cords
 # init pygame
 pygame.init()
 

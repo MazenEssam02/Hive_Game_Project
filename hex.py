@@ -46,4 +46,9 @@ def draw_grid(surface, rows, cols):
             hexagon.draw(surface)
     return tiles
 
+def hex_distance(a, b):
+    return (abs(a[0] - b[0]) + abs(a[0] + a[1] - b[0] - b[1]) + abs(a[1] - b[1])) // 2
 
+def hex_neighbors(hex):
+    directions = [(1, 0), (0, 1), (-1, 1), (-1, 0), (0, -1), (1, -1)]
+    return [(hex[0] + d[0], hex[1] + d[1]) for d in directions]
