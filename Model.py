@@ -8,25 +8,25 @@ class Board:
         self.board = {}
         self.pieces = []
 
-    def add_piece(self, piece_type, color, position):
-        if piece_type == "Queen Bee":
-            piece = QueenBee(color)
-        elif piece_type == "Beetle":
-            piece = Beetle(color)
-        elif piece_type == "Grasshopper":
-            piece = Grasshopper(color)
-        elif piece_type == "Spider":
-            piece = Spider(color)
-        elif piece_type == "Soldier Ant":
-            piece = SoldierAnt(color)
-        else:
-            raise ValueError("Unknown piece type")
+    # def add_piece(self, piece_type, color, position):
+    #     if piece_type == "Queen Bee":
+    #         piece = QueenBee(color)
+    #     elif piece_type == "Beetle":
+    #         piece = Beetle(color)
+    #     elif piece_type == "Grasshopper":
+    #         piece = Grasshopper(color)
+    #     elif piece_type == "Spider":
+    #         piece = Spider(color)
+    #     elif piece_type == "Soldier Ant":
+    #         piece = SoldierAnt(color)
+    #     else:
+    #         raise ValueError("Unknown piece type")
 
-        if position in self.board:
-            raise ValueError("Position already occupied")
-        self.board[position] = piece
-        piece.position = position
-        self.pieces.append(piece)
+    #     if position in self.board:
+    #         raise ValueError("Position already occupied")
+    #     self.board[position] = piece
+    #     piece.position = position
+    #     self.pieces.append(piece)
 
     def move_piece(self, piece, new_position):
         if isinstance(piece, Beetle):
@@ -82,6 +82,9 @@ class Piece:
 
     def __repr__(self):
         return f"{self.color} {self.piece_type}"
+
+    def update_pos(self, pos):
+        self.position = pos
 
 
 class QueenBee(Piece):
@@ -190,6 +193,7 @@ class SoldierAnt(Piece):
         size = int(2*RADIUS)  # Scale the asset to fit inside the hex
         asset = pygame.transform.scale(image, (size, size))
         (x, y) = center
+        # Offset to fit in the center of the hex
         pos = (x - RADIUS, y - RADIUS)
         surface.blit(asset, pos)
 
