@@ -1,5 +1,5 @@
 import pygame
-from constant import WIDTH_HEX, HEIGHT_HEX, RADIUS, BLUE, HORIZONTAL_SPACING, VERTICAL_SPACING
+from constant import WIDTH_HEX, HEIGHT_HEX, RADIUS, BLUE, HORIZONTAL_SPACING, VERTICAL_SPACING, GREY
 import math
 
 
@@ -12,52 +12,26 @@ class hex:
         self.radius = RADIUS
         self.color = color
         if piece:
-            self.piece = [piece]
+            self.pieces = [piece]
         else:
-            self.piece = []
+            self.pieces = []
 
     # draw one hexagon
     def draw(self, surface):
-        pygame.draw.polygon(surface, BLUE, self.points, 1)  # 1 for outline
+        if self.has_pieces():
+            self.pieces[-1].draw(surface, self.position)
+        pygame.draw.polygon(surface, self.color,
+                            self.points, 1)  # 1 for outline
 
-    # get the points of hexagon from https://www.redblobgames.com/grids/hexagons/
+    def draw_center(self, surface):
+        pygame.draw.polygon(surface, self.color, self.points, 0)
+
     def get_points(self, radius, center):
         for i in range(6):
             angle = math.radians(60 * i - 30)
             x = center[0] + radius * math.cos(angle)
             y = center[1] + radius * math.sin(angle)
             self.points.append((x, y))
-
-    def draw_grid(surface, rows, cols):
-        tiles = []
-        for row in range(rows):
-            for col in range(cols):
-                # Calculate the center of each hexagon
-                x = col * HORIZONTAL_SPACING + \
-                    (row % 2) * HORIZONTAL_SPACING / 2
-                y = row * VERTICAL_SPACING
-                # Offset to fit in the screen
-                center = (x + RADIUS, y + RADIUS)
-                if row % 2 == 0:
-                    col = col * 2
-                else:
-                    col = col * 2 + 1
-                hexagon = hex(row, col, center, BLUE)
-                tiles.append(hexagon)
-                hexagon.draw(surface)
-        return tiles
-
-    def hex_distance(a, b):
-        return (abs(a[0] - b[0]) + abs(a[0] + a[1] - b[0] - b[1]) + abs(a[1] - b[1])) // 2
-
-    def hex_neighbors(hex):
-        directions = [(0, -2), (0, 2), (-1, 1), (-1, -1), (1, -1), (1, 1)]
-        neighbors = []
-        for d in directions:
-            if (hex[0] + d[0] >= 0 and hex[0] + d[0] < 20 and hex[1] + d[1] >= 0 and hex[1] + d[1] < 23):
-                neighbors.append(
-                    (hex.position[0] + d[0], hex.position[1] + d[1]))
-        return neighbors
 
     def add_piece(self, piece):
         self.pieces.append(piece)
@@ -75,3 +49,48 @@ class hex:
             return True
         else:
             return False
+
+
+class Center_hex(hex):
+
+    def __init__(self, row, col, center, color, piece=None):
+        super().__init__(row, col, center, BLUE, piece)
+
+
+def hex_neighbors(hex):
+    directions = [(0, -2), (0, 2), (-1, 1), (-1, -1), (1, -1), (1, 1)]
+    neighbors = []
+    for d in directions:
+        if (hex[0] + d[0] >= 0 and hex[0] + d[0] < 20 and hex[1] + d[1] >= 0 and hex[1] + d[1] < 23):
+            neighbors.append(
+                (hex.position[0] + d[0], hex.position[1] + d[1]))
+    return neighbors
+
+
+def draw_grid(surface, rows, cols):
+    tiles = []
+    for row in range(rows):
+        for col in range(cols):
+            # Calculate the center of each hexagon
+            x = col * HORIZONTAL_SPACING + \
+                (row % 2) * HORIZONTAL_SPACING / 2
+            y = row * VERTICAL_SPACING
+            # Offset to fit in the screen
+            center = (x + RADIUS-4, y + RADIUS)
+            if row % 2 == 0:
+                col = col * 2
+            else:
+                col = col * 2 + 1
+            if row == 7 and col == 17:
+                hexagon = Center_hex(row, col, center, BLUE)
+                hexagon.draw_center(surface)
+
+            else:
+                hexagon = hex(row, col, center, GREY)
+                hexagon.draw(surface)
+            tiles.append(hexagon)
+    return tiles
+
+
+def hex_distance(a, b):
+    return (abs(a[0] - b[0]) + abs(a[0] + a[1] - b[0] - b[1]) + abs(a[1] - b[1])) // 2
