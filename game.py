@@ -1,15 +1,20 @@
 import pygame
 import sys
-from constant import WIDTH , HEIGHT , WHITE, RADIUS
-from hex import draw_grid
-#init pygame
+from constant import WIDTH, HEIGHT, WHITE, RADIUS
+from hex import draw_grid, get_cords
+# init pygame
 pygame.init()
 
-#set up the screen
+# set up the screen
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Hello World")
+# fill screen with white
+screen.fill(WHITE)
 
-#main loop
+# draw grid
+tiles = draw_grid(screen, rows=20, cols=23)
+get_cords(tiles[24])
+# main loop
 running = True
 while running:
     for event in pygame.event.get():
@@ -19,15 +24,11 @@ while running:
             if event.key == pygame.K_ESCAPE:
                 running = False
 
-    #fill screen with white
-    screen.fill(WHITE)
-    
-    #draw grid
-    draw_grid(screen, rows=12, cols=12)
-    #update the display
+    # update the display
     pygame.display.flip()
 
-#quit pygame
+
+# quit pygame
 
 pygame.quit()
 sys.exit()
