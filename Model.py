@@ -1,5 +1,6 @@
 from hex import hex_neighbors
 import pygame
+from constant import RADIUS
 
 
 class Board:
@@ -90,7 +91,11 @@ class QueenBee(Piece):
     def draw(self, surface, center):
         image = \
             pygame.image.load(f'assets/{type(self).__name__}_{self.color}.png')
-        surface.blit(image, center)
+        size = int(2*RADIUS)  # Scale the asset to fit inside the hex
+        asset = pygame.transform.scale(image, (size, size))
+        (x, y) = center
+        pos = (x - RADIUS, y - RADIUS)
+        surface.blit(asset, pos)
 
     def valid_moves(self, board):
         # Queen Bee can move one space in any direction
@@ -105,7 +110,11 @@ class Beetle(Piece):
     def draw(self, surface, center):
         image = \
             pygame.image.load(f'assets/{type(self).__name__}_{self.color}.png')
-        surface.blit(image, center)
+        size = int(2*RADIUS)  # Scale the asset to fit inside the hex
+        asset = pygame.transform.scale(image, (size, size))
+        (x, y) = center
+        pos = (x - RADIUS, y - RADIUS)
+        surface.blit(asset, pos)
 
     def valid_moves(self, board):
         # Beetle can move one space in any direction, including on top of other pieces
@@ -120,7 +129,11 @@ class Grasshopper(Piece):
     def draw(self, surface, center):
         image = \
             pygame.image.load(f'assets/{type(self).__name__}_{self.color}.png')
-        surface.blit(image, center)
+        size = int(2*RADIUS)  # Scale the asset to fit inside the hex
+        asset = pygame.transform.scale(image, (size, size))
+        (x, y) = center
+        pos = (x - RADIUS, y - RADIUS)
+        surface.blit(asset, pos)
 
     def valid_moves(self, board):
         # Grasshopper jumps over pieces in a straight line
@@ -142,7 +155,11 @@ class Spider(Piece):
     def draw(self, surface, center):
         image = \
             pygame.image.load(f'assets/{type(self).__name__}_{self.color}.png')
-        surface.blit(image, center)
+        size = int(2*RADIUS)  # Scale the asset to fit inside the hex
+        asset = pygame.transform.scale(image, (size, size))
+        (x, y) = center
+        pos = (x - RADIUS, y - RADIUS)
+        surface.blit(asset, pos)
 
     def valid_moves(self, board):
         # Spider moves exactly three spaces
@@ -170,7 +187,11 @@ class SoldierAnt(Piece):
     def draw(self, surface, center):
         image = \
             pygame.image.load(f'assets/{type(self).__name__}_{self.color}.png')
-        surface.blit(image, center)
+        size = int(2*RADIUS)  # Scale the asset to fit inside the hex
+        asset = pygame.transform.scale(image, (size, size))
+        (x, y) = center
+        pos = (x - RADIUS, y - RADIUS)
+        surface.blit(asset, pos)
 
     def valid_moves(self, board):
         # Soldier Ant can move to any position around the hive
