@@ -36,23 +36,25 @@ def draw_grid(surface, rows, cols):
             # Calculate the center of each hexagon
             x = col * HORIZONTAL_SPACING + (row % 2) * HORIZONTAL_SPACING / 2
             y = row * VERTICAL_SPACING
-            center = (x+RADIUS, y + RADIUS)  # Offset to fit in the screen
+            center = (x + RADIUS, y + RADIUS)  # Offset to fit in the screen
             if row % 2 == 0:
                 col = col * 2
-            else:  
+            else:
                 col = col * 2 + 1
             hexagon = hex(row, col, center, BLUE)
             tiles.append(hexagon)
             hexagon.draw(surface)
     return tiles
 
+
 def hex_distance(a, b):
     return (abs(a[0] - b[0]) + abs(a[0] + a[1] - b[0] - b[1]) + abs(a[1] - b[1])) // 2
 
+
 def hex_neighbors(hex):
     directions = [(0, -2), (0, 2), (-1, 1), (-1, -1), (1, -1), (1, 1)]
-    neighbors=[]
+    neighbors = []
     for d in directions:
-        if(hex[0] + d[0] >= 0 and hex[0] + d[0] < 20 and hex[1] + d[1] >= 0 and hex[1] + d[1] < 23):
+        if (hex[0] + d[0] >= 0 and hex[0] + d[0] < 20 and hex[1] + d[1] >= 0 and hex[1] + d[1] < 23):
             neighbors.append((hex.position[0] + d[0], hex.position[1] + d[1]))
     return neighbors
