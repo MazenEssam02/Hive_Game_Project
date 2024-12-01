@@ -13,8 +13,8 @@ screen.fill(WHITE)
 
 # draw grid
 tiles = draw_grid(screen, rows=20, cols=23)
-for tile in tiles:
-    print(tile.position)
+# for tile in tiles:
+#     print(tile.position)
 # main loop
 running = True
 while running:

@@ -1,4 +1,7 @@
 from hex import hex_neighbors
+import pygame
+
+
 class Board:
     def __init__(self):
         self.board = {}
@@ -39,12 +42,13 @@ class Board:
         piece.position = new_position
 
     def is_valid_move(self, piece, new_position):
-        #Todo
+        # Todo
         pass
 
     def __repr__(self):
         return str(self.board)
-    
+
+
 class Game:
     def __init__(self):
         self.board = Board()
@@ -67,7 +71,8 @@ class Game:
 
     def __repr__(self):
         return f"Turn: {self.current_turn}\nBoard:\n{self.board}"
-    
+
+
 class Piece:
     def __init__(self, piece_type, color):
         self.piece_type = piece_type
@@ -77,27 +82,45 @@ class Piece:
     def __repr__(self):
         return f"{self.color} {self.piece_type}"
 
+
 class QueenBee(Piece):
     def __init__(self, color):
-        super().__init__("Queen Bee", color)
+        super().__init__("QueenBee", color)
+
+    def draw(self, surface, center):
+        image = \
+            pygame.image.load(f'assets/{type(self).__name__}_{self.color}.png')
+        surface.blit(image, center)
 
     def valid_moves(self, board):
         # Queen Bee can move one space in any direction
         neighbors = hex_neighbors(self.position)
         return [pos for pos in neighbors if pos not in board.board]
-    
+
+
 class Beetle(Piece):
     def __init__(self, color):
         super().__init__("Beetle", color)
+
+    def draw(self, surface, center):
+        image = \
+            pygame.image.load(f'assets/{type(self).__name__}_{self.color}.png')
+        surface.blit(image, center)
 
     def valid_moves(self, board):
         # Beetle can move one space in any direction, including on top of other pieces
         neighbors = hex_neighbors(self.position)
         return neighbors
-    
+
+
 class Grasshopper(Piece):
     def __init__(self, color):
         super().__init__("Grasshopper", color)
+
+    def draw(self, surface, center):
+        image = \
+            pygame.image.load(f'assets/{type(self).__name__}_{self.color}.png')
+        surface.blit(image, center)
 
     def valid_moves(self, board):
         # Grasshopper jumps over pieces in a straight line
@@ -110,10 +133,16 @@ class Grasshopper(Piece):
                     pos = (pos[0] + d[0], pos[1] + d[1])
                 valid_moves.append(pos)
         return valid_moves
-    
+
+
 class Spider(Piece):
     def __init__(self, color):
         super().__init__("Spider", color)
+
+    def draw(self, surface, center):
+        image = \
+            pygame.image.load(f'assets/{type(self).__name__}_{self.color}.png')
+        surface.blit(image, center)
 
     def valid_moves(self, board):
         # Spider moves exactly three spaces
@@ -133,9 +162,15 @@ class Spider(Piece):
         visited = {self.position}
         return dfs(self.position, 0, visited)
 
+
 class SoldierAnt(Piece):
     def __init__(self, color):
-        super().__init__("Soldier Ant", color)
+        super().__init__("SoldierAnt", color)
+
+    def draw(self, surface, center):
+        image = \
+            pygame.image.load(f'assets/{type(self).__name__}_{self.color}.png')
+        surface.blit(image, center)
 
     def valid_moves(self, board):
         # Soldier Ant can move to any position around the hive
