@@ -8,7 +8,7 @@ BLACK = (0, 0, 0)
 BLUE = (0, 102, 204)
 
 # DIMESNIONS FOR HEX from https://www.redblobgames.com/grids/hexagons/
-RADIUS = 20  # Distance from center to a vertex
+RADIUS = 25  # Distance from center to a vertex
 WIDTH_HEX = math.sqrt(3) * RADIUS  # Full width of a hexagon
 HEIGHT_HEX = 2 * RADIUS  # Full height of a hexagon
 HORIZONTAL_SPACING = WIDTH_HEX  # Horizontal spacing

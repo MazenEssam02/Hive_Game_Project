@@ -1,5 +1,6 @@
 import pygame
 import sys
+from Model import QueenBee, Beetle, Grasshopper, Spider, SoldierAnt
 from constant import WIDTH, HEIGHT, WHITE, RADIUS
 from hex import draw_grid
 # init pygame
@@ -12,7 +13,9 @@ pygame.display.set_caption("Hello World")
 screen.fill(WHITE)
 
 # draw grid
-tiles = draw_grid(screen, rows=20, cols=23)
+tiles = draw_grid(screen, rows=16, cols=19)
+QueenBee1 = QueenBee("White")
+QueenBee1.draw(screen, tiles[141].center)
 # for tile in tiles:
 #     print(tile.position)
 # main loop
