@@ -5,7 +5,7 @@ import math
 
 class hex:
     def __init__(self, row, col, center, color, piece=None):
-        self.cord = [row, col]  # row + col % 2 = 0
+        self.position = (row, col)  # row + col % 2 = 0
         self.center = center  # in pixels
         self.points = []  # 6 points to draw the hexagon
         self.get_points(RADIUS, self.center)

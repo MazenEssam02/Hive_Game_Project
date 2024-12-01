@@ -1,7 +1,7 @@
 import pygame
 import sys
 from constant import WIDTH, HEIGHT, WHITE, RADIUS
-from hex import draw_grid #, get_cords
+from hex import draw_grid
 # init pygame
 pygame.init()
 
@@ -14,7 +14,7 @@ screen.fill(WHITE)
 # draw grid
 tiles = draw_grid(screen, rows=20, cols=23)
 for tile in tiles:
-    print(tile.cord)
+    print(tile.position)
 # main loop
 running = True
 while running:
