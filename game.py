@@ -20,8 +20,8 @@ pygame.display.set_caption("Hive Game")
 tiles = draw_grid(screen, rows=16, cols=19)
 white_inventory = Inventory_Frame((0, 158), 0, white=True)
 black_inventory = Inventory_Frame((400, 158), 1, white=False)
-white_tiles=white_inventory.draw(screen)
-black_tiles=black_inventory.draw(screen)
+white_tiles = white_inventory.draw(screen)
+black_tiles = black_inventory.draw(screen)
 background = pygame.Surface(screen.get_size())
 
 # Draw turn panel
@@ -37,18 +37,21 @@ while running:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = pygame.mouse.get_pos()
-            clicked_tile = get_clicked_hex(screen, tiles+white_tiles+black_tiles, mouse_pos)
+            clicked_tile = get_clicked_hex(
+                screen, tiles+white_tiles+black_tiles, mouse_pos)
 
             if clicked_tile:
                 if selected_tile is None:
                     if clicked_tile.has_pieces():
                         selected_tile = clicked_tile
+                        selected_tile.highlight()
                         for move in selected_tile.pieces[-1].valid_moves():
                             for tile in tiles:
                                 if move == tile.position:
                                     tile.highlight()
                 else:
                     selected_tile.move_piece(clicked_tile)
+                    selected_tile.unhighlight()
                     selected_tile = None
                     for tile in tiles:
                         tile.unhighlight()
@@ -68,15 +71,14 @@ while running:
     screen.fill(WHITE)
     for tile in tiles:
         tile.draw(screen)
-    
+
     white_inventory.draw(screen)
     black_inventory.draw(screen)
 
-    #Draw turn panel
+    # Draw turn panel
     # white_panel.draw(screen)
     # black_panel.draw(screen)
-    turn_panel.draw(screen , timer.get_time())
-    pygame.display.flip()
+    turn_panel.draw(screen , timer.get_time())    pygame.display.flip()
 
 # quit pygame
 
