@@ -1,5 +1,5 @@
 import pygame
-from constant import PANEL, WHITE , BLACK ,BACKGROUND
+from constant import WHITE , BLACK ,BACKGROUND
 # class turn:
 #     def __init__(self, pos , player):
 #         self.width = 100
@@ -16,28 +16,34 @@ from constant import PANEL, WHITE , BLACK ,BACKGROUND
 #         pygame.draw.circle(surf , cc , (self.pos[0]+self.width // 2 , self.pos[1] + self.height // 2) , 15 , 3)
 #     def my_turn(self, surf):
 #         pygame.draw.circle(surf , PANEL , (self.pos[0]+self.width // 2 , self.pos[1] + self.height // 2) , 15 , 0)
-
 class turn_terminal:
-    def __init__(self , pos):
+    def __init__(self , pos , turn):
         self.width = 300
         self.height = 50
         self.pos = pos
         self.panel = pygame.Rect(self.pos[0] , self.pos[1] , self.width , self.height)
         self.inner_panel = pygame.Rect(self.pos[0] + 50 , self.pos[1] + 5 , 200 , 40)
-    def draw(self, surf, turn):
+        self.game_turn = turn 
+    def draw(self, surf, remaining_time=180):
         pygame.draw.rect(surf, BACKGROUND , self.panel , 0)
         pygame.draw.rect(surf, WHITE , self.inner_panel, 0)
-        pygame.draw.circle(surf , WHITE , (self.pos[0]+ 25 , self.pos[1] + 25) , 15 , 3)
-        pygame.draw.circle(surf , WHITE , (self.pos[0] + 275, self.pos[1] + 25) , 15 , 3)
+        pygame.draw.circle(surf , WHITE , (self.pos[0]+ 25 , self.pos[1] + 25) , 15 , 2)
+        pygame.draw.circle(surf , BLACK , (self.pos[0] + 275, self.pos[1] + 25) , 15 , 2)
         FONT = pygame.font.SysFont('Times New Norman', 24)
-        if turn == 'WHITE TURN':
+        if self.game_turn == 'WHITE TURN':
             self.font = FONT.render('White Turn' , True, BLACK)
             pygame.draw.circle(surf , WHITE , (self.pos[0]+ 25 , self.pos[1] + 25) , 15 , 0)
         else:
             self.font = FONT.render('Black Turn', True , BLACK)
             pygame.draw.circle(surf , BLACK , (self.pos[0] + 275, self.pos[1] + 25) , 15 , 0)
-        center = (self.pos[0] + self.width / 2, self.pos[1] + self.height / 2)
+        # Turn Text
+        center = (self.pos[0] + self.width / 2, self.pos[1] + self.height / 2 - 10)
         self.turn_title = self.font.get_rect(center=(center))
+        # Time Text
+        self.time_text = FONT.render(f"{remaining_time // 60}:{remaining_time % 60:02d}", True, BLACK)
+        self.time_container = self.time_text.get_rect(center=(center[0] , center[1] + 20 )) 
         surf.blit(self.font, self.turn_title)
-    def update(self, surf, turn):
-        self.draw(surf, turn)
+        surf.blit(self.time_text, self.time_container)
+    def update(self, surf, turn, remaining_time=180):
+        self.game_turn = turn
+        self.draw(surf , remaining_time)
