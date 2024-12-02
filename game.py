@@ -78,7 +78,8 @@ while running:
     # Draw turn panel
     # white_panel.draw(screen)
     # black_panel.draw(screen)
-    turn_panel.draw(screen , timer.get_time())    pygame.display.flip()
+    turn_panel.draw(screen , timer.get_time())   
+    pygame.display.flip()
 
 # quit pygame
 
