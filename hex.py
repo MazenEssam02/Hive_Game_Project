@@ -72,7 +72,7 @@ class hex:
 class Inventory_Tile(hex):
 
     def __init__(self,  center, radius, color, piece):
-        super().__init__(-1,-1, center, color, piece)
+        super().__init__(-20,-20, center, color, piece)
 
 
 def hex_neighbors(hex):

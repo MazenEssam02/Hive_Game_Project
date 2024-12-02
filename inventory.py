@@ -104,4 +104,4 @@ class Inventory_Frame:
                 piece.update_pos(tile.center)
                 piece.draw(background, tile.center)
         background.blit(self.font, self.title_rect)
-        
+        return self.tiles

@@ -15,9 +15,9 @@ pygame.display.set_caption("Hive Game")
 tiles = draw_grid(screen, rows=16, cols=19)
 white_inventory = Inventory_Frame((0, 158), 0, white=True)
 black_inventory = Inventory_Frame((400, 158), 1, white=False)
+white_tiles=white_inventory.draw(screen)
+black_tiles=black_inventory.draw(screen)
 background = pygame.Surface(screen.get_size())
-QueenBee1 = QueenBee("White")
-tiles[141].add_piece(QueenBee1)
 
 selected_tile = None
 
@@ -28,7 +28,7 @@ while running:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = pygame.mouse.get_pos()
-            clicked_tile = get_clicked_hex(screen, tiles, mouse_pos)
+            clicked_tile = get_clicked_hex(screen, tiles+white_tiles+black_tiles, mouse_pos)
 
             if clicked_tile:
                 if selected_tile is None:
@@ -52,11 +52,11 @@ while running:
     screen.fill(WHITE)
     for tile in tiles:
         tile.draw(screen)
-    # print(QueenBee1.position)
-    # update the display
+    
     white_inventory.draw(screen)
     black_inventory.draw(screen)
     pygame.display.flip()
+
 # quit pygame
 
 pygame.quit()
