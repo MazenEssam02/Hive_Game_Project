@@ -1,6 +1,7 @@
 import pygame
 import sys
 from Model import QueenBee
+from inventory import Inventory_Frame
 from constant import WIDTH, HEIGHT, WHITE
 from hex import draw_grid, get_clicked_hex
 # init pygame
@@ -12,6 +13,9 @@ pygame.display.set_caption("Hive Game")
 
 # draw grid
 tiles = draw_grid(screen, rows=16, cols=19)
+white_inventory = Inventory_Frame((0, 158), 0, white=True)
+black_inventory = Inventory_Frame((400, 158), 1, white=False)
+background = pygame.Surface(screen.get_size())
 QueenBee1 = QueenBee("White")
 tiles[141].add_piece(QueenBee1)
 
@@ -50,6 +54,8 @@ while running:
         tile.draw(screen)
     # print(QueenBee1.position)
     # update the display
+    white_inventory.draw(screen)
+    black_inventory.draw(screen)
     pygame.display.flip()
 # quit pygame
 
