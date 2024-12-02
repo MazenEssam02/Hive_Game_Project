@@ -19,11 +19,16 @@ class hex:
     # draw one hexagon
     def draw(self, surface):
         if self.has_pieces():
-            self.pieces[-1].draw(surface, self.position)
+            self.pieces[-1].draw(surface, self.center)
         pygame.draw.polygon(surface, self.color,
                             self.points, 1)  # 1 for outline
 
     def draw_center(self, surface):
+        if self.has_pieces():
+            self.pieces[-1].draw(surface, self.center)
+            pygame.draw.polygon(surface, self.color,
+                            self.points, 1)  # 1 for outline
+            return
         pygame.draw.polygon(surface, self.color, self.points, 0)
 
     def get_points(self, radius, center):
@@ -49,7 +54,9 @@ class hex:
             return True
         else:
             return False
-
+    def contains_point(self, surface,point):
+        x, y = point
+        return pygame.draw.polygon(surface, self.color, self.points, 0).collidepoint(x, y)
 
 class Center_hex(hex):
 
@@ -94,3 +101,8 @@ def draw_grid(surface, rows, cols):
 
 def hex_distance(a, b):
     return (abs(a[0] - b[0]) + abs(a[0] + a[1] - b[0] - b[1]) + abs(a[1] - b[1])) // 2
+def get_clicked_hex(surface,tiles, mouse_pos):
+    for tile in tiles:
+        if tile.contains_point(surface,mouse_pos):
+            return tile
+    return None
