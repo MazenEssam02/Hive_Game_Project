@@ -100,10 +100,10 @@ class QueenBee(Piece):
         pos = (x - RADIUS, y - RADIUS)
         surface.blit(asset, pos)
 
-    def valid_moves(self, board):
+    def valid_moves(self):
         # Queen Bee can move one space in any direction
         neighbors = hex_neighbors(self.position)
-        return [pos for pos in neighbors if pos not in board.board]
+        return neighbors
 
 
 class Beetle(Piece):

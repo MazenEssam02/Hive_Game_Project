@@ -6,6 +6,7 @@ import math
 class hex:
     def __init__(self, row, col, center, color, piece=None):
         self.position = (row, col)  # row + col % 2 = 0
+        self.stroke = 1
         self.center = center  # in pixels
         self.points = []  # 6 points to draw the hexagon
         self.get_points(RADIUS, self.center)
@@ -15,21 +16,21 @@ class hex:
             self.pieces = [piece]
         else:
             self.pieces = []
+        if row == 7 and col == 17:
+            self.is_center_tile = True
+        else:
+            self.is_center_tile = False
 
     # draw one hexagon
     def draw(self, surface):
-        if self.has_pieces():
-            self.pieces[-1].draw(surface, self.center)
         pygame.draw.polygon(surface, self.color,
-                            self.points, 1)  # 1 for outline
-
-    def draw_center(self, surface):
+                            self.points, self.stroke)  # 1 for outline
         if self.has_pieces():
             self.pieces[-1].draw(surface, self.center)
-            pygame.draw.polygon(surface, self.color,
-                            self.points, 1)  # 1 for outline
             return
-        pygame.draw.polygon(surface, self.color, self.points, 0)
+
+        if self.is_center_tile:
+            pygame.draw.polygon(surface, BLUE, self.points, 0)
 
     def get_points(self, radius, center):
         for i in range(6):
@@ -54,23 +55,31 @@ class hex:
             return True
         else:
             return False
-    def contains_point(self, surface,point):
+
+    def contains_point(self, surface, point):
         x, y = point
         return pygame.draw.polygon(surface, self.color, self.points, 0).collidepoint(x, y)
 
-class Center_hex(hex):
+    def highlight(self):
+        self.color = BLUE
+        self.stroke = 2
 
-    def __init__(self, row, col, center, color, piece=None):
-        super().__init__(row, col, center, BLUE, piece)
+    def unhighlight(self):
+        self.color = GREY
+        self.stroke = 1
+# class Center_hex(hex):
+
+#     def __init__(self, row, col, center, color, piece=None):
+#         super().__init__(row, col, center, BLUE, piece)
 
 
 def hex_neighbors(hex):
     directions = [(0, -2), (0, 2), (-1, 1), (-1, -1), (1, -1), (1, 1)]
     neighbors = []
     for d in directions:
-        if (hex[0] + d[0] >= 0 and hex[0] + d[0] < 20 and hex[1] + d[1] >= 0 and hex[1] + d[1] < 23):
+        if (hex[0] + d[0] >= 0 and hex[0] + d[0] < 15 and hex[1] + d[1] >= 0 and hex[1] + d[1] < 36):
             neighbors.append(
-                (hex.position[0] + d[0], hex.position[1] + d[1]))
+                (hex[0] + d[0], hex[1] + d[1]))
     return neighbors
 
 
@@ -88,21 +97,23 @@ def draw_grid(surface, rows, cols):
                 col = col * 2
             else:
                 col = col * 2 + 1
-            if row == 7 and col == 17:
-                hexagon = Center_hex(row, col, center, BLUE)
-                hexagon.draw_center(surface)
+            # if row == 7 and col == 17:
+            #     hexagon = Center_hex(row, col, center, BLUE)
+            #     hexagon.draw_center(surface)
 
-            else:
-                hexagon = hex(row, col, center, GREY)
-                hexagon.draw(surface)
+            # else:
+            hexagon = hex(row, col, center, GREY)
+            hexagon.draw(surface)
             tiles.append(hexagon)
     return tiles
 
 
 def hex_distance(a, b):
     return (abs(a[0] - b[0]) + abs(a[0] + a[1] - b[0] - b[1]) + abs(a[1] - b[1])) // 2
-def get_clicked_hex(surface,tiles, mouse_pos):
+
+
+def get_clicked_hex(surface, tiles, mouse_pos):
     for tile in tiles:
-        if tile.contains_point(surface,mouse_pos):
+        if tile.contains_point(surface, mouse_pos):
             return tile
     return None

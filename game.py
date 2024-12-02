@@ -8,7 +8,7 @@ pygame.init()
 
 # set up the screen
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Hello World")
+pygame.display.set_caption("Hive Game")
 
 # draw grid
 tiles = draw_grid(screen, rows=16, cols=19)
@@ -30,9 +30,16 @@ while running:
                 if selected_tile is None:
                     if clicked_tile.has_pieces():
                         selected_tile = clicked_tile
+                        for move in selected_tile.pieces[-1].valid_moves():
+                            for tile in tiles:
+                                if move == tile.position:
+                                    tile.highlight()
+
                 else:
                     selected_tile.move_piece(clicked_tile)
                     selected_tile = None
+                    for tile in tiles:
+                        tile.unhighlight()
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
@@ -41,10 +48,10 @@ while running:
     screen.fill(WHITE)
     for tile in tiles:
         tile.draw(screen)
+    # print(QueenBee1.position)
     # update the display
     pygame.display.flip()
 # quit pygame
 
 pygame.quit()
 sys.exit()
-
