@@ -37,9 +37,9 @@ class Inventory_Frame:
         self.tiles = []
 
         if white:
-            self.color = WHITE
+            self.color = 'WHITE'
         else:
-            self.color = BLACK
+            self.color = 'BLACK'
         for i in range(0, 5):
             self.tile_rects.append(pygame.Rect(inner_left + i * stock_width
                                    + 2, inner_top + title_height + 2,
@@ -82,6 +82,7 @@ class Inventory_Frame:
         for tile in self.tiles:
             for piece in tile.pieces:
                 piece.update_pos(tile.center)
+                
 
         FONT = pygame.font.SysFont('Times New Norman', 24)
         if player == 0:
@@ -98,6 +99,9 @@ class Inventory_Frame:
         pygame.draw.rect(background, PANEL, self.title_rect)
         for i in range(0, len(self.tile_rects)):
             pygame.draw.rect(background, self.color, self.tile_rects[i])
-
+        for tile in self.tiles:
+            for piece in tile.pieces:
+                piece.update_pos(tile.center)
+                piece.draw(background, tile.center)
         background.blit(self.font, self.title_rect)
         
