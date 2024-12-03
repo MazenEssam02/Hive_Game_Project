@@ -1,6 +1,7 @@
-from hex import hex_neighbors
+from hex import hex_neighbors, hex
 import pygame
 from constant import RADIUS
+from Controller import place_piece
 
 
 class Board:
@@ -100,10 +101,22 @@ class QueenBee(Piece):
         pos = (x - RADIUS, y - RADIUS)
         surface.blit(asset, pos)
 
-    def valid_moves(self):
+    def valid_moves(self, tiles):
         # Queen Bee can move one space in any direction
-        neighbors = hex_neighbors(self.position)
-        return neighbors
+        valid_moves = []
+
+        if self.position in [tile.position for tile in tiles]:
+            # The piece is on the board, check for neighboring tiles
+            neighbors = hex_neighbors(self.position)
+            for neighbor in neighbors:
+                for tile in tiles:
+                    if neighbor == tile.position and not tile.has_pieces():
+                        valid_moves.append(neighbor)
+        else:
+            # The piece is in the inventory, check for tiles already on the board
+            valid_moves = place_piece(self, tiles)
+
+        return valid_moves
 
 
 class Beetle(Piece):
@@ -119,10 +132,17 @@ class Beetle(Piece):
         pos = (x - RADIUS, y - RADIUS)
         surface.blit(asset, pos)
 
-    def valid_moves(self, board):
+    def valid_moves(self, tiles):
         # Beetle can move one space in any direction, including on top of other pieces
-        neighbors = hex_neighbors(self.position)
-        return neighbors
+        if self.position in [tile.position for tile in tiles]:
+            # The piece is on the board, check for neighboring tiles
+            pass
+        else:
+            # The piece is in the inventory, check for tiles already on the board
+            valid_moves = place_piece(self, tiles)
+        
+        return valid_moves
+        # neighbors = hex_neighbors(self.position)
 
 
 class Grasshopper(Piece):
@@ -138,17 +158,25 @@ class Grasshopper(Piece):
         pos = (x - RADIUS, y - RADIUS)
         surface.blit(asset, pos)
 
-    def valid_moves(self, board):
-        # Grasshopper jumps over pieces in a straight line
-        directions = [(1, 0), (0, 1), (-1, 1), (-1, 0), (0, -1), (1, -1)]
-        valid_moves = []
-        for d in directions:
-            pos = (self.position[0] + d[0], self.position[1] + d[1])
-            if pos in board.board:
-                while pos in board.board:
-                    pos = (pos[0] + d[0], pos[1] + d[1])
-                valid_moves.append(pos)
+    def valid_moves(self, tiles):
+        if self.position in [tile.position for tile in tiles]:
+            # The piece is on the board
+            pass
+        else:
+            # The piece is in the inventory, check for tiles already on the board
+            valid_moves = place_piece(self, tiles)
+
         return valid_moves
+        # # Grasshopper jumps over pieces in a straight line
+        # directions = [(1, 0), (0, 1), (-1, 1), (-1, 0), (0, -1), (1, -1)]
+        # valid_moves = []
+        # for d in directions:
+        #     pos = (self.position[0] + d[0], self.position[1] + d[1])
+        #     if pos in board.board:
+        #         while pos in board.board:
+        #             pos = (pos[0] + d[0], pos[1] + d[1])
+        #         valid_moves.append(pos)
+        # return valid_moves
 
 
 class Spider(Piece):
@@ -164,23 +192,32 @@ class Spider(Piece):
         pos = (x - RADIUS, y - RADIUS)
         surface.blit(asset, pos)
 
-    def valid_moves(self, board):
-        # Spider moves exactly three spaces
-        def dfs(position, depth, visited):
-            if depth == 3:
-                return [position]
-            moves = []
-            for neighbor in hex_neighbors(position):
-                if neighbor not in visited and neighbor in board.board:
-                    # Check if the neighbor is adjacent to the hive
-                    if any(adj in board.board for adj in hex_neighbors(neighbor)):
-                        visited.add(neighbor)
-                        moves.extend(dfs(neighbor, depth + 1, visited))
-                        visited.remove(neighbor)
-            return moves
+    def valid_moves(self, tiles):
+        if self.position in [tile.position for tile in tiles]:
+            # The piece is on the board
+            pass
+        else:
+            # The piece is in the inventory, check for tiles already on the board
+            valid_moves = place_piece(self, tiles)
+            
+        return valid_moves
 
-        visited = {self.position}
-        return dfs(self.position, 0, visited)
+        # # Spider moves exactly three spaces
+        # def dfs(position, depth, visited):
+        #     if depth == 3:
+        #         return [position]
+        #     moves = []
+        #     for neighbor in hex_neighbors(position):
+        #         if neighbor not in visited and neighbor in board.board:
+        #             # Check if the neighbor is adjacent to the hive
+        #             if any(adj in board.board for adj in hex_neighbors(neighbor)):
+        #                 visited.add(neighbor)
+        #                 moves.extend(dfs(neighbor, depth + 1, visited))
+        #                 visited.remove(neighbor)
+        #     return moves
+
+        # visited = {self.position}
+        # return dfs(self.position, 0, visited)
 
 
 class SoldierAnt(Piece):
@@ -197,21 +234,30 @@ class SoldierAnt(Piece):
         pos = (x - RADIUS, y - RADIUS)
         surface.blit(asset, pos)
 
-    def valid_moves(self, board):
-        # Soldier Ant can move to any position around the hive
-        def bfs(start):
-            queue = [start]
-            visited = {start}
-            moves = []
-            while queue:
-                position = queue.pop(0)
-                for neighbor in hex_neighbors(position):
-                    if neighbor not in visited and neighbor not in board.board:
-                        # Check if the neighbor is adjacent to the hive
-                        if any(adj in board.board for adj in hex_neighbors(neighbor)):
-                            visited.add(neighbor)
-                            queue.append(neighbor)
-                            moves.append(neighbor)
-            return moves
+    def valid_moves(self, tiles):
+        if self.position in [tile.position for tile in tiles]:
+            # The piece is on the board
+            pass
+        else:
+            # The piece is in the inventory, check for tiles already on the board
+            valid_moves = place_piece(self, tiles)
+            
+        return valid_moves
 
-        return bfs(self.position)
+        # # Soldier Ant can move to any position around the hive
+        # def bfs(start):
+        #     queue = [start]
+        #     visited = {start}
+        #     moves = []
+        #     while queue:
+        #         position = queue.pop(0)
+        #         for neighbor in hex_neighbors(position):
+        #             if neighbor not in visited and neighbor not in board.board:
+        #                 # Check if the neighbor is adjacent to the hive
+        #                 if any(adj in board.board for adj in hex_neighbors(neighbor)):
+        #                     visited.add(neighbor)
+        #                     queue.append(neighbor)
+        #                     moves.append(neighbor)
+        #     return moves
+
+        # return bfs(self.position)

@@ -3,7 +3,7 @@ import sys
 from Model import QueenBee
 from inventory import Inventory_Frame
 from constant import WIDTH, HEIGHT, WHITE, TIMER_EVENT
-from hex import draw_grid, get_clicked_hex
+from hex import draw_grid, get_clicked_hex, hex_neighbors
 from turn import turn_terminal
 from state import state , TurnTimer
 # init pygame
@@ -31,33 +31,42 @@ turn_panel = turn_terminal((screen.get_width() // 2 - 150, 0) , 'WHITE TURN')
 selected_tile = None
 
 running = True
+valid_moves = []
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = pygame.mouse.get_pos()
-            clicked_tile = get_clicked_hex(
-                screen, tiles+white_tiles+black_tiles, mouse_pos)
-
+            clicked_tile = get_clicked_hex(screen, tiles + white_tiles + black_tiles, mouse_pos)
             if clicked_tile:
                 if selected_tile is None:
-                    if clicked_tile.has_pieces():
-                        selected_tile = clicked_tile
-                        selected_tile.highlight()
-                        for move in selected_tile.pieces[-1].valid_moves():
-                            for tile in tiles:
-                                if move == tile.position:
-                                    tile.highlight()
+                    # Check if the piece belongs to the current player
+                    if clicked_tile.pieces:
+                        piece = clicked_tile.pieces[-1]
+                        if (game.current_state == "WHITE TURN" and piece.color == "WHITE") or (game.current_state == "BLACK TURN" and piece.color == "BLACK"):
+                            selected_tile = clicked_tile
+                            selected_tile.highlight()
+                            valid_moves = selected_tile.pieces[-1].valid_moves(tiles)
+                            if game.turn == 1:
+                                valid_moves = [(7, 17)]
+                            elif game.turn == 2:
+                                valid_moves = hex_neighbors((7, 17))
+                            for move in valid_moves:
+                                for tile in tiles:
+                                    if move == tile.position:
+                                        tile.highlight()
                 else:
-                    selected_tile.move_piece(clicked_tile)
+                    if selected_tile != clicked_tile and clicked_tile.position in valid_moves:
+                        selected_tile.move_piece(clicked_tile)
+                        game.change_turn()
+                        turn_panel.update(screen, game.current_state)
+                        timer.reset_timer()
                     selected_tile.unhighlight()
                     selected_tile = None
                     for tile in tiles:
                         tile.unhighlight()
-                    game.change_turn()
-                    turn_panel.update(screen, game.current_state)
-                    timer.reset_timer()
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
