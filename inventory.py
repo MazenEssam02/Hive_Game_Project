@@ -81,8 +81,7 @@ class Inventory_Frame:
                     self.tiles.append(Inventory_Tile(
                         tile_pos, 20, self.color, piece=SoldierAnt(self.color)))
         for tile in self.tiles:
-            for piece in tile.pieces:
-                piece.update_pos(tile.center)
+            tile.pieces[0].update_pos(tile.center)
 
         FONT = pygame.font.SysFont('Times New Norman', 24)
         if player == 0:
