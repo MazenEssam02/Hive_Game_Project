@@ -8,12 +8,12 @@ class state:
         # Increment the turn counter
         self.turn += 1
         # pygame.time.set_timer(TIMER_EVENT , 1000)
-        if self.current_state == 'WHITE TURN' :
-            self.current_state = 'BLACK TURN'
-        elif self.current_state == 'BLACK TURN':
-            self.current_state = 'WHITE TURN'
+        if self.current_state == 'WHITE' :
+            self.current_state = 'BLACK'
+        elif self.current_state == 'BLACK':
+            self.current_state = 'WHITE'
     def start_game(self):
-        self.current_state = 'WHITE TURN'
+        self.current_state = 'WHITE'
         self.turn = 1  # Initialize the turn counter
         #drigger event in Timer_event every 1sec
         pygame.time.set_timer(TIMER_EVENT , 1000)
@@ -32,3 +32,4 @@ class TurnTimer():
         self.turn_time = 180
     def get_time(self):
         return self.turn_time
+     
