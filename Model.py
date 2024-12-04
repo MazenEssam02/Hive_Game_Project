@@ -1,7 +1,7 @@
 from hex import hex_neighbors, hex
 import pygame
 from constant import RADIUS
-from Controller import place_piece
+from Controller import place_piece, is_piece_on_board
 
 
 class Board:
@@ -54,7 +54,7 @@ class Board:
 class Game:
     def __init__(self):
         self.board = Board()
-        self.current_turn = "White"
+        self.current_turn = "WHITE"
         self.winner = None
 
     def place_piece(self, piece_type, position):
@@ -69,7 +69,7 @@ class Game:
             raise ValueError("Invalid move")
 
     def switch_turn(self):
-        self.current_turn = "Black" if self.current_turn == "White" else "White"
+        self.current_turn = "BLACK" if self.current_turn == "WHITE" else "WHITE"
 
     def __repr__(self):
         return f"Turn: {self.current_turn}\nBoard:\n{self.board}"
@@ -90,7 +90,7 @@ class Piece:
 
 class QueenBee(Piece):
     def __init__(self, color):
-        super().__init__("QueenBee", color)
+        super().__init__("Queen Bee", color)
 
     def draw(self, surface, center):
         image = \
@@ -104,8 +104,7 @@ class QueenBee(Piece):
     def valid_moves(self, tiles):
         # Queen Bee can move one space in any direction
         valid_moves = []
-
-        if self.position in [tile.position for tile in tiles]:
+        if is_piece_on_board(self, tiles):
             # The piece is on the board, check for neighboring tiles
             neighbors = hex_neighbors(self.position)
             for neighbor in neighbors:
@@ -132,17 +131,22 @@ class Beetle(Piece):
         pos = (x - RADIUS, y - RADIUS)
         surface.blit(asset, pos)
 
+    # Beetle can move one space in any direction, including on top of other pieces
     def valid_moves(self, tiles):
-        # Beetle can move one space in any direction, including on top of other pieces
-        if self.position in [tile.position for tile in tiles]:
+        # Queen Bee can move one space in any direction
+        valid_moves = []
+        if is_piece_on_board(self, tiles):
             # The piece is on the board, check for neighboring tiles
-            pass
+            neighbors = hex_neighbors(self.position)
+            for neighbor in neighbors:
+                for tile in tiles:
+                    if neighbor == tile.position and not tile.has_pieces():
+                        valid_moves.append(neighbor)
         else:
             # The piece is in the inventory, check for tiles already on the board
             valid_moves = place_piece(self, tiles)
-        
+
         return valid_moves
-        # neighbors = hex_neighbors(self.position)
 
 
 class Grasshopper(Piece):
@@ -159,9 +163,15 @@ class Grasshopper(Piece):
         surface.blit(asset, pos)
 
     def valid_moves(self, tiles):
-        if self.position in [tile.position for tile in tiles]:
-            # The piece is on the board
-            pass
+        # Queen Bee can move one space in any direction
+        valid_moves = []
+        if is_piece_on_board(self, tiles):
+            # The piece is on the board, check for neighboring tiles
+            neighbors = hex_neighbors(self.position)
+            for neighbor in neighbors:
+                for tile in tiles:
+                    if neighbor == tile.position and not tile.has_pieces():
+                        valid_moves.append(neighbor)
         else:
             # The piece is in the inventory, check for tiles already on the board
             valid_moves = place_piece(self, tiles)
@@ -193,13 +203,19 @@ class Spider(Piece):
         surface.blit(asset, pos)
 
     def valid_moves(self, tiles):
-        if self.position in [tile.position for tile in tiles]:
-            # The piece is on the board
-            pass
+        # Queen Bee can move one space in any direction
+        valid_moves = []
+        if is_piece_on_board(self, tiles):
+            # The piece is on the board, check for neighboring tiles
+            neighbors = hex_neighbors(self.position)
+            for neighbor in neighbors:
+                for tile in tiles:
+                    if neighbor == tile.position and not tile.has_pieces():
+                        valid_moves.append(neighbor)
         else:
             # The piece is in the inventory, check for tiles already on the board
             valid_moves = place_piece(self, tiles)
-            
+
         return valid_moves
 
         # # Spider moves exactly three spaces
@@ -222,7 +238,7 @@ class Spider(Piece):
 
 class SoldierAnt(Piece):
     def __init__(self, color):
-        super().__init__("SoldierAnt", color)
+        super().__init__("Soldier Ant", color)
 
     def draw(self, surface, center):
         image = \
@@ -235,13 +251,19 @@ class SoldierAnt(Piece):
         surface.blit(asset, pos)
 
     def valid_moves(self, tiles):
-        if self.position in [tile.position for tile in tiles]:
-            # The piece is on the board
-            pass
+        # Queen Bee can move one space in any direction
+        valid_moves = []
+        if is_piece_on_board(self, tiles):
+            # The piece is on the board, check for neighboring tiles
+            neighbors = hex_neighbors(self.position)
+            for neighbor in neighbors:
+                for tile in tiles:
+                    if neighbor == tile.position and not tile.has_pieces():
+                        valid_moves.append(neighbor)
         else:
             # The piece is in the inventory, check for tiles already on the board
             valid_moves = place_piece(self, tiles)
-            
+
         return valid_moves
 
         # # Soldier Ant can move to any position around the hive
