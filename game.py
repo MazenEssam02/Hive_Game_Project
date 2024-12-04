@@ -5,7 +5,7 @@ from constant import WIDTH, HEIGHT, WHITE, TIMER_EVENT
 from hex import draw_grid, get_clicked_hex
 from turn import turn_terminal
 from state import state , TurnTimer
-from Controller import get_valid_moves
+from Controller import get_valid_moves, is_queen_surrounded
 # init pygame
 pygame.init()
 
@@ -53,10 +53,13 @@ while running:
                                 for tile in tiles:
                                     if move == tile.position:
                                         tile.highlight()
-                                        tile.highlight()
                 else:
                     if selected_tile != clicked_tile and clicked_tile.position in valid_moves:
                         selected_tile.move_piece(clicked_tile)
+                        queen_color = is_queen_surrounded(piece, tiles)
+                        if queen_color:
+                            print(queen_color,"Queen surrounded")
+                            # running = False
                         game.change_turn()
                         turn_panel.update(screen, game.current_state)
                         timer.reset_timer()

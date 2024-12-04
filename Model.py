@@ -1,7 +1,7 @@
-from hex import hex_neighbors, hex
+from hex import hex_neighbors
 import pygame
 from constant import RADIUS
-from Controller import place_piece, is_piece_on_board
+from Controller import place_piece, is_piece_on_board, can_slide_out
 
 
 class Board:
@@ -107,10 +107,15 @@ class QueenBee(Piece):
         if is_piece_on_board(self, tiles):
             # The piece is on the board, check for neighboring tiles
             neighbors = hex_neighbors(self.position)
-            for neighbor in neighbors:
-                for tile in tiles:
-                    if neighbor == tile.position and not tile.has_pieces():
-                        valid_moves.append(neighbor)
+            free_spaces = can_slide_out(neighbors, tiles)
+            if free_spaces:
+                # Check if the queen moves adjacent to neighboring pieces 
+                for free_space in free_spaces:
+                    for neighbor_pos in neighbors:
+                        neighbor_tile = next((t for t in tiles if t.position == neighbor_pos), None)
+                        if neighbor_tile.has_pieces() and free_space in hex_neighbors(neighbor_pos):
+                            valid_moves.append(free_space)
+                            break
         else:
             # The piece is in the inventory, check for tiles already on the board
             valid_moves = place_piece(self, tiles)
@@ -133,21 +138,38 @@ class Beetle(Piece):
 
     # Beetle can move one space in any direction, including on top of other pieces
     def valid_moves(self, tiles):
-        # Queen Bee can move one space in any direction
         valid_moves = []
         if is_piece_on_board(self, tiles):
-            # The piece is on the board, check for neighboring tiles
-            neighbors = hex_neighbors(self.position)
-            for neighbor in neighbors:
-                for tile in tiles:
-                    if neighbor == tile.position and not tile.has_pieces():
-                        valid_moves.append(neighbor)
+            # Check if the beetle is on top of the hive
+            current_tile = next((t for t in tiles if t.position == self.position), None)
+            if current_tile.pieces[0] == self:
+                # The piece is on the board, check for neighboring tiles
+                neighbors = hex_neighbors(self.position)
+                free_spaces = can_slide_out(neighbors, tiles)
+                if free_spaces:
+                    # Check if the beetle moves adjacent to neighboring pieces 
+                    for free_space in free_spaces:
+                        for neighbor_pos in neighbors:
+                            neighbor_tile = next((t for t in tiles if t.position == neighbor_pos), None)
+                            if neighbor_tile.has_pieces() and free_space in hex_neighbors(neighbor_pos):
+                                valid_moves.append(free_space)
+                                break
+                # Check if the beetle can move on top of other pieces
+                for neighbor in neighbors:
+                    for tile in tiles:
+                        if neighbor == tile.position and tile.has_pieces():
+                            valid_moves.append(neighbor)
+            # The beetle is on top of the hive
+            else:
+                neighbors = hex_neighbors(self.position)
+                for neighbor in neighbors:
+                    valid_moves.append(neighbor)
+            
         else:
             # The piece is in the inventory, check for tiles already on the board
             valid_moves = place_piece(self, tiles)
 
         return valid_moves
-
 
 class Grasshopper(Piece):
     def __init__(self, color):
@@ -162,32 +184,33 @@ class Grasshopper(Piece):
         pos = (x - RADIUS, y - RADIUS)
         surface.blit(asset, pos)
 
+    # Grasshopper jumps over pieces in a straight line
     def valid_moves(self, tiles):
-        # Queen Bee can move one space in any direction
         valid_moves = []
         if is_piece_on_board(self, tiles):
             # The piece is on the board, check for neighboring tiles
-            neighbors = hex_neighbors(self.position)
-            for neighbor in neighbors:
-                for tile in tiles:
-                    if neighbor == tile.position and not tile.has_pieces():
-                        valid_moves.append(neighbor)
+            directions = [(0, -2), (0, 2), (-1, 1), (-1, -1), (1, -1), (1, 1)]
+            for direction in directions:
+                current_pos = self.position
+                # Move to the next position in the current direction
+                current_pos = (current_pos[0] + direction[0], current_pos[1] + direction[1])
+                current_tile = next((t for t in tiles if t.position == current_pos), None)
+                # Check if it will jump over an adjacent piece
+                if current_tile and current_tile.has_pieces():
+                    # Continue moving in the same direction until an empty tile is found
+                    while True:
+                        # Check if the tile is empty and add it to the valid moves
+                        if not current_tile.has_pieces():
+                            valid_moves.append(current_pos)
+                            break
+                        # Move to the next position in the current direction
+                        current_pos = (current_pos[0] + direction[0], current_pos[1] + direction[1])
+                        current_tile = next((t for t in tiles if t.position == current_pos), None)
         else:
             # The piece is in the inventory, check for tiles already on the board
             valid_moves = place_piece(self, tiles)
 
         return valid_moves
-        # # Grasshopper jumps over pieces in a straight line
-        # directions = [(1, 0), (0, 1), (-1, 1), (-1, 0), (0, -1), (1, -1)]
-        # valid_moves = []
-        # for d in directions:
-        #     pos = (self.position[0] + d[0], self.position[1] + d[1])
-        #     if pos in board.board:
-        #         while pos in board.board:
-        #             pos = (pos[0] + d[0], pos[1] + d[1])
-        #         valid_moves.append(pos)
-        # return valid_moves
-
 
 class Spider(Piece):
     def __init__(self, color):

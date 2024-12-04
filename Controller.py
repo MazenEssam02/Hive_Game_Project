@@ -14,6 +14,12 @@ def place_piece(piece, tiles):
     valid_moves = [move for move in my_neighbors - opposing_neighbors if not any(tile.position == move and tile.has_pieces() for tile in tiles)]
     return valid_moves
 
+def is_piece_on_board(piece, tiles):
+    for tile in tiles:
+        if piece.position == tile.position:
+            return True
+    return False
+
 def is_queen_on_board(color, tiles):
     for tile in tiles:
         if tile.has_pieces():
@@ -22,10 +28,17 @@ def is_queen_on_board(color, tiles):
                     return True
     return False
 
-def is_piece_on_board(piece, tiles):
-    for tile in tiles:
-        if piece.position == tile.position:
-            return True
+def is_queen_surrounded(piece, tiles):
+    for neighbor_pos in hex_neighbors(piece.position):
+        neighbor_tile = next((t for t in tiles if t.position == neighbor_pos), None)
+        if neighbor_tile and neighbor_tile.has_pieces():
+            for neighbor_piece in neighbor_tile.pieces:
+                if neighbor_piece.piece_type == "Queen Bee":
+                    for neighbor_pos_queen in hex_neighbors(neighbor_tile.position):
+                        neighbor_tile_queen = next((t for t in tiles if t.position == neighbor_pos_queen), None)
+                        if not neighbor_tile_queen or not neighbor_tile_queen.has_pieces():
+                            return False
+                    return neighbor_piece.color
     return False
 
 def is_hive_connected(tiles):
@@ -116,3 +129,23 @@ def get_valid_moves(piece, game, tiles, white_inventory, black_inventory):
     valid_moves = filter_moves(piece, valid_moves, tiles)
 
     return valid_moves
+
+def can_slide_out(neighbors, tiles):
+    free_spaces = []
+    valid_spaces = set()  # Use a set to avoid duplicates
+    for neighbor_pos in neighbors:
+        neighbor_tile = next((t for t in tiles if t.position == neighbor_pos), None)
+        if not neighbor_tile or not neighbor_tile.has_pieces():
+            free_spaces.append(neighbor_pos)
+        
+    # Check if there are at least two adjacent free spaces
+    for i in range(len(free_spaces)):
+        for j in range(i + 1, len(free_spaces)):
+            if free_spaces[i] in hex_neighbors(free_spaces[j]):
+                valid_spaces.add(free_spaces[i])
+                valid_spaces.add(free_spaces[j])
+    return list(valid_spaces)
+
+def can_slide_in(position, tiles, piece):
+    #Todo
+    pass
