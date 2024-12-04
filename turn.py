@@ -30,7 +30,7 @@ class turn_terminal:
         pygame.draw.circle(surf , WHITE , (self.pos[0]+ 25 , self.pos[1] + 25) , 15 , 2)
         pygame.draw.circle(surf , BLACK , (self.pos[0] + 275, self.pos[1] + 25) , 15 , 2)
         FONT = pygame.font.SysFont('Times New Norman', 24)
-        if self.game_turn == 'WHITE TURN':
+        if self.game_turn == 'WHITE':
             self.font = FONT.render('White Turn' , True, BLACK)
             pygame.draw.circle(surf , WHITE , (self.pos[0]+ 25 , self.pos[1] + 25) , 15 , 0)
         else:
