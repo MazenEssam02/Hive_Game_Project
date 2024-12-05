@@ -36,7 +36,7 @@ def is_queen_surrounded(piece, tiles):
                 if neighbor_piece.piece_type == "Queen Bee":
                     for neighbor_pos_queen in hex_neighbors(neighbor_tile.position):
                         neighbor_tile_queen = next((t for t in tiles if t.position == neighbor_pos_queen), None)
-                        if not neighbor_tile_queen or not neighbor_tile_queen.has_pieces():
+                        if not neighbor_tile_queen.has_pieces():
                             return False
                     return neighbor_piece.color
     return False

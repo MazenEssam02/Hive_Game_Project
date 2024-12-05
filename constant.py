@@ -1,5 +1,5 @@
 import math
-from pygame.locals import USEREVENT 
+from pygame.locals import USEREVENT
 # SCREEN DIMENSIONS
 WIDTH, HEIGHT = 800, 750
 
@@ -18,8 +18,15 @@ HEIGHT_HEX = 2 * RADIUS  # Full height of a hexagon
 HORIZONTAL_SPACING = WIDTH_HEX  # Horizontal spacing
 VERTICAL_SPACING = 3/4 * HEIGHT_HEX  # Vertical spacing
 
-#Timer
+# Timer
 TIMER_EVENT = USEREVENT + 1
 
-#Game State
-GAME_STATES = ['PAUSE' , 'RESUME' , 'WHITE TURN' , 'BLACK TURN' , 'END GAME' , 'WHITE WINS' , 'BLACK WINS']
+# Game State
+GAME_STATES = ['PAUSE', 'RESUME', 'WHITE TURN',
+               'BLACK TURN', 'END GAME', 'WHITE WINS', 'BLACK WINS']
+
+# Menu states
+STATE_START_MENU = "start_menu"
+STATE_OPPONENT_MENU = "opponent_menu"
+STATE_DIFFICULTY_MENU = "difficulty_menu"
+STATE_END_MENU = "end_menu"
