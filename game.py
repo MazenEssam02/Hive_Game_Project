@@ -29,8 +29,8 @@ def init():
     # draw grid
     global tiles, white_inventory, black_inventory, all_tiles, turn_panel, selected_tile
     tiles = draw_grid(screen, rows=16, cols=19)
-    white_inventory = Inventory_Frame((0, 158), 0, white=True)
-    black_inventory = Inventory_Frame((400, 158), 1, white=False)
+    white_inventory = Inventory_Frame((0, 170), 0, white=True)
+    black_inventory = Inventory_Frame((400, 170), 1, white=False)
     white_tiles = white_inventory.draw(screen)
     black_tiles = black_inventory.draw(screen)
     all_tiles = tiles + white_tiles + black_tiles
@@ -85,7 +85,7 @@ while game.running:
                             piece = clicked_tile.pieces[-1]
                             if game.current_state == piece.color:
                                 selected_tile = clicked_tile
-                                selected_tile.highlight()
+                                selected_tile.selected()
                                 valid_moves = get_valid_moves(
                                     piece, game, tiles, white_inventory, black_inventory)
                                 for move in valid_moves:
@@ -105,7 +105,7 @@ while game.running:
                             game.change_turn()
                             turn_panel.update(screen, game.current_state)
                             timer.reset_timer()
-                        selected_tile.unhighlight()
+                        selected_tile.unselected()
                         selected_tile = None
                         for tile in tiles:
                             tile.unhighlight()

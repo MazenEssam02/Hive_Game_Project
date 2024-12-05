@@ -8,8 +8,14 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 BLUE = (0, 102, 204)
 GREY = (128, 128, 128)
-PANEL = (55, 55, 55)
-BACKGROUND = (180, 180, 180)
+PANEL = (42, 54, 99)
+BACKGROUND = (42, 54, 99)
+START_MENU_BG_COLOR = (42, 54, 99)  # Dark grey background
+BUTTON_COLOR = (181, 159, 120)  # Muted greyish beige
+BUTTON_HOVER_COLOR = (179, 164, 138)  # Softer beige
+# Steel blue for selected button highlight
+BUTTON_BORDER_COLOR = (70, 130, 180)
+DISABLED_BUTTON_COLOR = (160, 160, 160)  # Greyed-out button
 
 # DIMESNIONS FOR HEX from https://www.redblobgames.com/grids/hexagons/
 RADIUS = 25  # Distance from center to a vertex

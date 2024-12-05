@@ -1,18 +1,12 @@
 import pygame
 import sys
-from constant import WIDTH, HEIGHT
+from constant import WIDTH,START_MENU_BG_COLOR ,BUTTON_COLOR,BUTTON_HOVER_COLOR,BUTTON_BORDER_COLOR,WHITE,DISABLED_BUTTON_COLOR
 
 
 
 pygame.init()
 
-# Colors
-START_MENU_BG_COLOR = (50, 50, 50)  # Dark grey background
-BUTTON_COLOR = (198, 155, 123)  # Muted greyish beige
-BUTTON_HOVER_COLOR = (223, 184, 150)  # Softer beige
-BUTTON_BORDER_COLOR = (70, 130, 180)  # Steel blue for selected button highlight
-TEXT_COLOR = (255, 255, 255)  # White for text
-DISABLED_BUTTON_COLOR = (160, 160, 160)  # Greyed-out button
+
 
 # Fonts
 font = pygame.font.Font(None, 74)
@@ -47,7 +41,7 @@ def draw_button(screen,text, x, y, width, height, action=None, enabled=True, sel
         pygame.draw.rect(screen, BUTTON_BORDER_COLOR, (x - 2, y - 2, width + 4, height + 4), 3, border_radius=10)
 
     # Draw the text centered on the button
-    draw_text(text, small_font, TEXT_COLOR if enabled else (100, 100, 100), screen, x + width // 2, y + height // 2)
+    draw_text(text, small_font, WHITE if enabled else (100, 100, 100), screen, x + width // 2, y + height // 2)
 
     # Handle button click when enabled and mouse hovers over the button
     if enabled and x < mouse[0] < x + width and y < mouse[1] < y + height:
@@ -63,7 +57,7 @@ def draw_text(text, font, color, surface, x, y):
 # Start Menu
 def start_menu(screen,state):
     screen.fill(START_MENU_BG_COLOR)
-    draw_text("Start Menu", font, TEXT_COLOR, screen, WIDTH // 2, 100)
+    draw_text("Start Menu", font, WHITE, screen, WIDTH // 2, 100)
 
     options = [
         ("Start Game", lambda:(state.start_opponent_menu(),pygame.time.wait(150))),
@@ -80,7 +74,7 @@ def start_menu(screen,state):
 def opponent_menu(screen,state):
     
     screen.fill(START_MENU_BG_COLOR)
-    draw_text("Choose Opponent", font, TEXT_COLOR, screen, WIDTH // 2, 100)
+    draw_text("Choose Opponent", font, WHITE, screen, WIDTH // 2, 100)
 
     # Define button positions and text for opponent options
     buttons = [
@@ -123,7 +117,7 @@ def opponent_menu(screen,state):
 # Difficulty Menu
 def difficulty_menu(screen,state):
     screen.fill(START_MENU_BG_COLOR)
-    draw_text("Select Difficulty", font, TEXT_COLOR, screen, WIDTH // 2, 100)
+    draw_text("Select Difficulty", font, WHITE, screen, WIDTH // 2, 100)
 
     options = [
         ("Easy", lambda: set_difficulty("Easy",state)),
@@ -151,14 +145,14 @@ def difficulty_menu(screen,state):
 # Game Placeholder
 # def game_running():
 #     screen.fill(START_MENU_BG_COLOR)
-#     draw_text(f"Game Running - {selected_difficulty} Mode", font, TEXT_COLOR, screen, WIDTH // 2, HEIGHT // 3)
-#     draw_text(f"Opponent: {selected_opponent}", small_font, TEXT_COLOR, screen, WIDTH // 2, HEIGHT // 2)
+#     draw_text(f"Game Running - {selected_difficulty} Mode", font, WHITE, screen, WIDTH // 2, HEIGHT // 3)
+#     draw_text(f"Opponent: {selected_opponent}", small_font, WHITE, screen, WIDTH // 2, HEIGHT // 2)
 
 # End Menu
 def end_menu(screen,state,loser_color):
     screen.fill(START_MENU_BG_COLOR)
-    draw_text("Game Over", font, TEXT_COLOR, screen, WIDTH // 2, 100)
-    draw_text(f"{loser_color} LOSE ", font, TEXT_COLOR, screen, WIDTH // 2, 300)
+    draw_text("Game Over", font, WHITE, screen, WIDTH // 2, 100)
+    draw_text(f"{loser_color} LOSE ", font, WHITE, screen, WIDTH // 2, 300)
     options = [
         ("Restart",state.start_new_game),
         ("Quit", state.quit)

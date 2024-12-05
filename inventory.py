@@ -1,8 +1,7 @@
 import pygame
 from Model import QueenBee, Grasshopper, Spider, Beetle, SoldierAnt
 from hex import Inventory_Tile
-from constant import WHITE, BLACK, WHITE, BLACK, PANEL, \
-    WIDTH, HEIGHT
+from constant import WHITE, BLACK, PANEL, WIDTH, HEIGHT
 
 
 class Inventory_Frame:
@@ -17,12 +16,12 @@ class Inventory_Frame:
         top = HEIGHT - pos[1]
 
         inventory_width = WIDTH / 2
-        inventory_height = 160
+        inventory_height = 170
 
         inner_left = left + 5
         inner_top = top + 5
         inner_width = inventory_width - 10
-        inner_height = inventory_height - 10
+        inner_height = inventory_height - 5
 
         self.back_panel = pygame.Rect(left, top, inventory_width,
                                       inventory_height)
@@ -93,7 +92,7 @@ class Inventory_Frame:
 
     def draw(self, background):
 
-        pygame.draw.rect(background, BLACK, self.back_panel)
+        pygame.draw.rect(background, PANEL, self.back_panel)
         pygame.draw.rect(background, PANEL, self.inner_panel)
         pygame.draw.rect(background, PANEL, self.title_rect)
         for i in range(0, len(self.tile_rects)):
