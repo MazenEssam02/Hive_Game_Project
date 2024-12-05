@@ -1,7 +1,7 @@
 import pygame
 from Model import QueenBee, Grasshopper, Spider, Beetle, SoldierAnt
 from hex import Inventory_Tile
-from constant import WHITE, BLACK, PANEL, WIDTH, HEIGHT
+from constant import WHITE, DARK_BLUE, WIDTH, HEIGHT,GREY
 
 
 class Inventory_Frame:
@@ -37,8 +37,10 @@ class Inventory_Frame:
 
         if white:
             self.color = 'WHITE'
+            self.bg_color=WHITE
         else:
             self.color = 'BLACK'
+            self.bg_color=GREY
         for i in range(0, 5):
             self.tile_rects.append(pygame.Rect(inner_left + i * stock_width
                                    + 2, inner_top + title_height + 2,
@@ -49,28 +51,28 @@ class Inventory_Frame:
                             / 2, inner_top + title_height
                             + stock_height / 2)
                 self.tiles.append(Inventory_Tile(tile_pos,
-                                  20, self.color,
+                                  20, self.bg_color,
                                   piece=QueenBee(self.color)))
             if i == 1:
                 for j in range(1, 3):
                     tile_pos = (inner_left + i * stock_width
                                 + stock_width / 2, inner_top
                                 + title_height + j * stock_height / 3)
-                    self.tiles.append(Inventory_Tile(tile_pos, 20, self.color,
+                    self.tiles.append(Inventory_Tile(tile_pos, 20, self.bg_color,
                                                      piece=Beetle(self.color)))
             if i == 2:
                 for j in range(1, 3):
                     tile_pos = (inner_left + i * stock_width
                                 + stock_width / 2, inner_top
                                 + title_height + j * stock_height / 3)
-                    self.tiles.append(Inventory_Tile(tile_pos, 20, self.color,
+                    self.tiles.append(Inventory_Tile(tile_pos, 20, self.bg_color,
                                                      piece=Spider(self.color)))
             if i == 3:
                 for j in [25, 67, 109]:
                     tile_pos = (inner_left + i * stock_width
                                 + stock_width / 2, inner_top
                                 + title_height + j * stock_height / 135)
-                    self.tiles.append(Inventory_Tile(tile_pos, 20, self.color,
+                    self.tiles.append(Inventory_Tile(tile_pos, 20, self.bg_color,
                                                      piece=Grasshopper(self.color)))
             if i == 4:
                 for j in [25, 67, 109]:
@@ -78,7 +80,7 @@ class Inventory_Frame:
                                 + stock_width / 2, inner_top
                                 + title_height + j * stock_height / 135)
                     self.tiles.append(Inventory_Tile(
-                        tile_pos, 20, self.color, piece=SoldierAnt(self.color)))
+                        tile_pos, 20, self.bg_color, piece=SoldierAnt(self.color)))
         for tile in self.tiles:
             tile.pieces[0].update_pos(tile.center)
 
@@ -92,11 +94,11 @@ class Inventory_Frame:
 
     def draw(self, background):
 
-        pygame.draw.rect(background, PANEL, self.back_panel)
-        pygame.draw.rect(background, PANEL, self.inner_panel)
-        pygame.draw.rect(background, PANEL, self.title_rect)
+        pygame.draw.rect(background, DARK_BLUE, self.back_panel)
+        pygame.draw.rect(background, DARK_BLUE, self.inner_panel)
+        pygame.draw.rect(background, DARK_BLUE, self.title_rect)
         for i in range(0, len(self.tile_rects)):
-            pygame.draw.rect(background, self.color, self.tile_rects[i])
+            pygame.draw.rect(background, self.bg_color, self.tile_rects[i])
         for tile in self.tiles:
             for piece in tile.pieces:
                 piece.update_pos(tile.center)
