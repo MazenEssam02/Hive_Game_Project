@@ -28,17 +28,19 @@ def is_queen_on_board(color, tiles):
                     return True
     return False
 
-def is_queen_surrounded(piece, tiles):
+def is_queen_surrounded(piece, tile_dict):
     for neighbor_pos in hex_neighbors(piece.position):
-        neighbor_tile = next((t for t in tiles if t.position == neighbor_pos), None)
+        neighbor_tile = tile_dict.get(neighbor_pos)
         if neighbor_tile and neighbor_tile.has_pieces():
             for neighbor_piece in neighbor_tile.pieces:
                 if neighbor_piece.piece_type == "Queen Bee":
                     for neighbor_pos_queen in hex_neighbors(neighbor_tile.position):
-                        neighbor_tile_queen = next((t for t in tiles if t.position == neighbor_pos_queen), None)
+                        neighbor_tile_queen = tile_dict.get(neighbor_pos_queen)
                         if not neighbor_tile_queen.has_pieces():
+                            # print("Queen not surrounded inner loop")
                             return False
                     return neighbor_piece.color
+    # print("Queen not surrounded outer loop")
     return False
 
 def is_hive_connected(tiles):
@@ -98,7 +100,7 @@ def filter_moves(piece, valid_moves, tiles):
     else:
         return valid_moves
 
-def get_valid_moves(piece, game, tiles, white_inventory, black_inventory):
+def get_valid_moves(piece, game, tiles, tile_dict):
     valid_moves = []
     if game.turn == 1:
         valid_moves = [(7, 17)]
@@ -110,20 +112,20 @@ def get_valid_moves(piece, game, tiles, white_inventory, black_inventory):
             valid_moves = place_piece(piece, tiles)
     elif game.turn in (5, 6):
         if is_queen_on_board(piece.color, tiles):
-            valid_moves = piece.valid_moves(tiles)
+            valid_moves = piece.valid_moves(tiles, tile_dict)
         else:
             # Only allow selecting pieces from inventory
             if not is_piece_on_board(piece, tiles):
                 valid_moves = place_piece(piece, tiles)
     elif game.turn in (7, 8):
         if is_queen_on_board(piece.color, tiles):
-            valid_moves = piece.valid_moves(tiles)
+            valid_moves = piece.valid_moves(tiles, tile_dict)
         else:
             # Only allow selecting the queen from inventory
             if piece.piece_type == "Queen Bee" and piece.color == game.current_state:
                 valid_moves = place_piece(piece, tiles)
     else:
-        valid_moves = piece.valid_moves(tiles)
+        valid_moves = piece.valid_moves(tiles, tile_dict)
 
     # Filter out moves that break the hive
     valid_moves = filter_moves(piece, valid_moves, tiles)
@@ -149,3 +151,21 @@ def can_slide_out(neighbors, tiles):
 def can_slide_in(position, tiles, piece):
     #Todo
     pass
+
+def generate_adjacent_moves(position, tile_dict):
+    valid_moves = []
+    neighbors = hex_neighbors(position)
+    
+    for i in range(len(neighbors)):
+        neighbor_pos = neighbors[i]
+        next_index = (i + 1) % len(neighbors)
+        next_neighbor_pos = neighbors[next_index]
+        
+        if neighbor_pos in tile_dict and tile_dict[neighbor_pos].has_pieces():
+            if next_neighbor_pos in tile_dict and not tile_dict[next_neighbor_pos].has_pieces():
+                valid_moves.append(next_neighbor_pos)
+        elif neighbor_pos in tile_dict and not tile_dict[neighbor_pos].has_pieces():
+            if next_neighbor_pos in tile_dict and tile_dict[next_neighbor_pos].has_pieces():
+                valid_moves.append(neighbor_pos)
+    
+    return valid_moves

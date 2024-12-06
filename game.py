@@ -3,7 +3,7 @@ import sys
 from Menus import start_menu, opponent_menu, difficulty_menu, end_menu
 from inventory import Inventory_Frame
 from constant import WIDTH, HEIGHT, WHITE, TIMER_EVENT
-from hex import draw_grid, get_clicked_hex
+from hex import draw_grid, get_clicked_hex, generate_tile_dict
 from turn import turn_terminal
 from state import state, TurnTimer
 from Controller import get_valid_moves, is_queen_surrounded
@@ -17,6 +17,7 @@ timer = TurnTimer()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Hive Game")
 tiles = []
+tile_dict = {}
 white_inventory = None
 black_inventory = None
 turn_panel = None
@@ -27,8 +28,9 @@ loser_color = None
 
 def init():
     # draw grid
-    global tiles, white_inventory, black_inventory, all_tiles, turn_panel, selected_tile
+    global tiles, tile_dict, white_inventory, black_inventory, all_tiles, turn_panel, selected_tile
     tiles = draw_grid(screen, rows=16, cols=19)
+    tile_dict = generate_tile_dict(tiles)
     white_inventory = Inventory_Frame((0, 170), 0, white=True)
     black_inventory = Inventory_Frame((400, 170), 1, white=False)
     white_tiles = white_inventory.draw(screen)
@@ -86,8 +88,7 @@ while game.running:
                             if game.current_state == piece.color:
                                 selected_tile = clicked_tile
                                 selected_tile.selected()
-                                valid_moves = get_valid_moves(
-                                    piece, game, tiles, white_inventory, black_inventory)
+                                valid_moves = get_valid_moves(piece, game, tiles, tile_dict)
                                 for move in valid_moves:
                                     for tile in tiles:
                                         if move == tile.position:
@@ -95,7 +96,7 @@ while game.running:
                     else:
                         if selected_tile != clicked_tile and clicked_tile.position in valid_moves:
                             selected_tile.move_piece(clicked_tile)
-                            queen_color = is_queen_surrounded(piece, tiles)
+                            queen_color = is_queen_surrounded(piece, tile_dict)
                             if queen_color:
 
                                 loser_color = queen_color

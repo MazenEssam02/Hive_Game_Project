@@ -82,7 +82,8 @@ class Inventory_Tile(hex):
 
 
 def hex_neighbors(hex):
-    directions = [(0, -2), (0, 2), (-1, 1), (-1, -1), (1, -1), (1, 1)]
+    # directions = [(0, -2), (0, 2), (-1, 1), (-1, -1), (1, -1), (1, 1)]
+    directions = [(0, -2), (-1, -1),(-1, 1), (0, 2), (1, 1), (1, -1)]
     neighbors = []
     for d in directions:
         if (hex[0] + d[0] >= 0 and hex[0] + d[0] < 15 and hex[1] + d[1] >= 0 and hex[1] + d[1] < 36):
@@ -115,13 +116,14 @@ def draw_grid(surface, rows, cols):
             tiles.append(hexagon)
     return tiles
 
-
 def hex_distance(a, b):
     return (abs(a[0] - b[0]) + abs(a[0] + a[1] - b[0] - b[1]) + abs(a[1] - b[1])) // 2
-
 
 def get_clicked_hex(surface, tiles, mouse_pos):
     for tile in tiles:
         if tile.contains_point(surface, mouse_pos):
             return tile
     return None
+
+def generate_tile_dict(tiles):
+    return {tile.position: tile for tile in tiles}
