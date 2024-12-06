@@ -43,9 +43,11 @@ def init():
 
 init()
 while game.running:
+    # check if the player wants to play a new game init the game again
     if game.play_new_game:
         init()
         game.start_opponent_menu()
+    # Menu game loop
     while game.menu_loop:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -53,8 +55,9 @@ while game.running:
                 game.quit()
 
         start_menu(screen, game)
-        pygame.time.Clock().tick(60)
+        pygame.time.Clock().tick(60)  # 60 frames per second for better experience
         pygame.display.flip()
+    # Opponent menu game loop
     while game.opponent_menu:
 
         for event in pygame.event.get():
@@ -62,16 +65,20 @@ while game.running:
 
                 game.quit()
         opponent_menu(screen, game)
-        pygame.time.Clock().tick(60)
+        pygame.time.Clock().tick(60)  # 60 frames per second for better experience
         pygame.display.flip()
+    # Difficulty menu game loop
     while game.difficulitiy_menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game.quit()
         difficulty_menu(screen, game)
-        pygame.time.Clock().tick(60)
+        pygame.time.Clock().tick(60)  # 60 frames per second for better experience
         pygame.display.flip()
+    # Main game loop
     while game.main_loop:
+        # print(game.selected_difficulty)
+        # print(game.selected_opponent)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game.quit()
@@ -128,15 +135,16 @@ while game.running:
         black_inventory.draw(screen)
 
         turn_panel.draw(screen, timer.get_time())
-        pygame.time.Clock().tick(60)
+        pygame.time.Clock().tick(60)  # 60 frames per second for better experience
         pygame.display.flip()
+    # End menu game loop
     while game.end_loop:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
 
                 game.quit()
         end_menu(screen, game, loser_color)
-        pygame.time.Clock().tick(60)
+        pygame.time.Clock().tick(60)  # 60 frames per second for better experience
         pygame.display.flip()
 
 # quit pygame

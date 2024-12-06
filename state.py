@@ -35,8 +35,6 @@ class state:
         self.menu_loop = True
         self.main_loop = False
     def start_main_loop(self):
-        # print(self.selected_difficulty)
-        # print(self.selected_opponent)
         self.opponent_menu = False
         self.difficulitiy_menu = False
         self.menu_loop = False
