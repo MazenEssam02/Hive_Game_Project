@@ -12,6 +12,7 @@ class hex:
         self.get_points(RADIUS, self.center)
         self.radius = RADIUS
         self.color = color
+        self.is_selected = False
         self.prev_color = color
         if piece:
             self.pieces = [piece]
@@ -22,16 +23,29 @@ class hex:
         else:
             self.is_center_tile = False
 
-    # draw one hexagon
+    # draw hexagon
     def draw(self, surface):
         pygame.draw.polygon(surface, self.color,
-                            self.points, self.stroke)  # 1 for outline
+                            self.points, self.stroke)
         if self.has_pieces():
             self.pieces[-1].draw(surface, self.center)
-            return
 
-        # if self.is_center_tile:
-        #     pygame.draw.polygon(surface, BLUE, self.points, 0)
+        # draw a rectangle if pieces are stacked
+        if len(self.pieces) > 1 and self.is_selected:
+
+            # Define the offset and size of the rectangle
+            rect_height = RADIUS*2
+            rect_width = RADIUS*len(self.pieces)*2
+            rect_x = 25
+            rect_y = 0
+            offset = rect_x+RADIUS+3
+            # Draw the rectangle with the calculated position and size
+            pygame.draw.rect(surface, DARK_BLUE,
+                             (rect_x, rect_y, rect_width, rect_height))
+            # draw pieces inside the rectangle
+            for piece in self.pieces:
+                piece.draw(surface, (offset, rect_y+RADIUS))
+                offset += HORIZONTAL_SPACING
 
     def get_points(self, radius, center):
         for i in range(6):
@@ -68,10 +82,13 @@ class hex:
     def unhighlight(self):
         self.color = self.prev_color
         self.stroke = 1
+        self.is_selected = False
 
     def selected(self):
         self.color = DARK_BLUE
         self.stroke = 3
+        self.is_selected = True
+
 
 class Inventory_Tile(hex):
 
@@ -80,8 +97,7 @@ class Inventory_Tile(hex):
 
 
 def hex_neighbors(hex):
-    # directions = [(0, -2), (0, 2), (-1, 1), (-1, -1), (1, -1), (1, 1)]
-    directions = [(0, -2), (-1, -1),(-1, 1), (0, 2), (1, 1), (1, -1)]
+    directions = [(0, -2), (-1, -1), (-1, 1), (0, 2), (1, 1), (1, -1)]
     neighbors = []
     for d in directions:
         if (hex[0] + d[0] >= 0 and hex[0] + d[0] < 15 and hex[1] + d[1] >= 0 and hex[1] + d[1] < 36):
@@ -104,24 +120,19 @@ def draw_grid(surface, rows, cols):
                 col = col * 2
             else:
                 col = col * 2 + 1
-            # if row == 7 and col == 17:
-            #     hexagon = Center_hex(row, col, center, BLUE)
-            #     hexagon.draw_center(surface)
 
-            # else:
             hexagon = hex(row, col, center, GREY)
             hexagon.draw(surface)
             tiles.append(hexagon)
     return tiles
 
-def hex_distance(a, b):
-    return (abs(a[0] - b[0]) + abs(a[0] + a[1] - b[0] - b[1]) + abs(a[1] - b[1])) // 2
 
 def get_clicked_hex(surface, tiles, mouse_pos):
     for tile in tiles:
         if tile.contains_point(surface, mouse_pos):
             return tile
     return None
+
 
 def generate_tile_dict(tiles):
     return {tile.position: tile for tile in tiles}

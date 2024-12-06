@@ -36,10 +36,6 @@ def init():
     white_tiles = white_inventory.draw(screen)
     black_tiles = black_inventory.draw(screen)
     all_tiles = tiles + white_tiles + black_tiles
-
-    # Draw turn panel
-    # white_panel = turn((0,0) , 'White')
-    # black_panel = turn((screen.get_width() - 100,0) , 'black')
     turn_panel = turn_terminal((screen.get_width() // 2 - 150, 0), 'WHITE')
     selected_tile = None
     loser_color = None
@@ -90,7 +86,8 @@ while game.running:
                             if game.current_state == piece.color:
                                 selected_tile = clicked_tile
                                 selected_tile.selected()
-                                valid_moves = get_valid_moves(piece, game, tiles, tile_dict)
+                                valid_moves = get_valid_moves(
+                                    piece, game, tiles, tile_dict)
                                 for move in valid_moves:
                                     for tile in tiles:
                                         if move == tile.position:
