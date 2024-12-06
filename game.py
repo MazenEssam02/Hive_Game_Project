@@ -46,7 +46,6 @@ def init():
 
 
 init()
-# game.start_end_loop()
 while game.running:
     if game.play_new_game:
         init()
@@ -58,6 +57,7 @@ while game.running:
                 game.quit()
 
         start_menu(screen, game)
+        pygame.time.Clock().tick(60)
         pygame.display.flip()
     while game.opponent_menu:
 
@@ -66,12 +66,14 @@ while game.running:
 
                 game.quit()
         opponent_menu(screen, game)
+        pygame.time.Clock().tick(60)
         pygame.display.flip()
     while game.difficulitiy_menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game.quit()
         difficulty_menu(screen, game)
+        pygame.time.Clock().tick(60)
         pygame.display.flip()
     while game.main_loop:
         for event in pygame.event.get():
@@ -102,11 +104,11 @@ while game.running:
                                 loser_color = queen_color
                                 game.start_end_loop()
                                 pygame.time.delay(200)
-                                # running = False
+
                             game.change_turn()
                             turn_panel.update(screen, game.current_state)
                             timer.reset_timer()
-                        selected_tile.unselected()
+                        selected_tile.unhighlight()
                         selected_tile = None
                         for tile in tiles:
                             tile.unhighlight()
@@ -128,10 +130,8 @@ while game.running:
         white_inventory.draw(screen)
         black_inventory.draw(screen)
 
-        # Draw turn panel
-        # white_panel.draw(screen)
-        # black_panel.draw(screen)
         turn_panel.draw(screen, timer.get_time())
+        pygame.time.Clock().tick(60)
         pygame.display.flip()
     while game.end_loop:
         for event in pygame.event.get():
@@ -139,8 +139,9 @@ while game.running:
 
                 game.quit()
         end_menu(screen, game, loser_color)
+        pygame.time.Clock().tick(60)
         pygame.display.flip()
-# quit pygame
 
+# quit pygame
 pygame.quit()
 sys.exit()

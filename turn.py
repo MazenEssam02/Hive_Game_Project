@@ -1,21 +1,5 @@
 import pygame
-from constant import WHITE , BLACK ,BACKGROUND,PANEL
-# class turn:
-#     def __init__(self, pos , player):
-#         self.width = 100
-#         self.height = 50
-#         self.pos = pos
-#         self.player = player
-#         self.panel = pygame.Rect(self.pos[0] , self.pos[1] , self.width , self.height)
-#     def draw(self, surf):
-#         if self.player == 'White':
-#             cc = WHITE
-#         else:
-#             cc = BLACK
-#         pygame.draw.rect(surf, PANEL , self.panel , 0)
-#         pygame.draw.circle(surf , cc , (self.pos[0]+self.width // 2 , self.pos[1] + self.height // 2) , 15 , 3)
-#     def my_turn(self, surf):
-#         pygame.draw.circle(surf , PANEL , (self.pos[0]+self.width // 2 , self.pos[1] + self.height // 2) , 15 , 0)
+from constant import WHITE , BLACK ,DARK_BLUE
 class turn_terminal:
     def __init__(self , pos , turn):
         self.width = 300
@@ -25,7 +9,7 @@ class turn_terminal:
         self.inner_panel = pygame.Rect(self.pos[0] + 50 , self.pos[1] + 5 , 200 , 40)
         self.game_turn = turn 
     def draw(self, surf, remaining_time=180):
-        pygame.draw.rect(surf, PANEL , self.panel , 0)
+        pygame.draw.rect(surf, DARK_BLUE , self.panel , 0)
         pygame.draw.rect(surf, WHITE , self.inner_panel, 0)
         pygame.draw.circle(surf , WHITE , (self.pos[0]+ 25 , self.pos[1] + 25) , 15 , 2)
         pygame.draw.circle(surf , BLACK , (self.pos[0] + 275, self.pos[1] + 25) , 15 , 2)

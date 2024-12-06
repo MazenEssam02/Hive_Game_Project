@@ -1,5 +1,5 @@
 import pygame
-from constant import WIDTH_HEX, HEIGHT_HEX, RADIUS, BLUE, HORIZONTAL_SPACING, VERTICAL_SPACING, GREY,BACKGROUND
+from constant import RADIUS, BLUE, HORIZONTAL_SPACING, VERTICAL_SPACING, GREY, DARK_BLUE
 import math
 
 
@@ -12,7 +12,7 @@ class hex:
         self.get_points(RADIUS, self.center)
         self.radius = RADIUS
         self.color = color
-        self.prev_color=color
+        self.prev_color = color
         if piece:
             self.pieces = [piece]
         else:
@@ -66,19 +66,17 @@ class hex:
         self.stroke = 2
 
     def unhighlight(self):
-        self.color = GREY
-        self.stroke = 1
-    def selected(self):
-        self.color = BACKGROUND
-        self.stroke = 2
-    def unselected(self):
         self.color = self.prev_color
         self.stroke = 1
+
+    def selected(self):
+        self.color = DARK_BLUE
+        self.stroke = 3
 
 class Inventory_Tile(hex):
 
     def __init__(self,  center, radius, color, piece):
-        super().__init__(-20,-20, center, color, piece)
+        super().__init__(-20, -20, center, color, piece)
 
 
 def hex_neighbors(hex):

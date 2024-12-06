@@ -14,7 +14,6 @@ class state:
         self.play_new_game = False
         self.selected_opponent = None
         self.selected_difficulty = None
-        # self.menu_current_state = STATE_START_MENU
 
     def start_end_loop(self):
         self.difficulitiy_menu = False
