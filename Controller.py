@@ -29,19 +29,34 @@ def is_queen_on_board(color, tiles):
     return False
 
 def is_queen_surrounded(piece, tile_dict):
+    queen_bees = []
+    
+    # Find all neighboring queen bees
     for neighbor_pos in hex_neighbors(piece.position):
         neighbor_tile = tile_dict.get(neighbor_pos)
         if neighbor_tile and neighbor_tile.has_pieces():
             for neighbor_piece in neighbor_tile.pieces:
                 if neighbor_piece.piece_type == "Queen Bee":
-                    for neighbor_pos_queen in hex_neighbors(neighbor_tile.position):
-                        neighbor_tile_queen = tile_dict.get(neighbor_pos_queen)
-                        if not neighbor_tile_queen.has_pieces():
-                            # print("Queen not surrounded inner loop")
-                            return False
-                    return neighbor_piece.color
-    # print("Queen not surrounded outer loop")
-    return False
+                    queen_bees.append(neighbor_piece)
+    
+    # Check if each queen bee is surrounded
+    surrounded_queens = []
+    for queen in queen_bees:
+        queen_surrounded = True
+        for neighbor_pos_queen in hex_neighbors(queen.position):
+            neighbor_tile_queen = tile_dict.get(neighbor_pos_queen)
+            if not neighbor_tile_queen or not neighbor_tile_queen.has_pieces():
+                queen_surrounded = False
+                break
+        if queen_surrounded:
+            surrounded_queens.append(queen.color)
+    
+    if len(surrounded_queens) == 2:
+        return "tie"
+    elif len(surrounded_queens) == 1:
+        return surrounded_queens[0]
+    else:
+        return False
 
 def is_hive_connected(tiles):
     visited = set()
@@ -168,4 +183,13 @@ def generate_adjacent_moves(position, tile_dict):
             if next_neighbor_pos in tile_dict and tile_dict[next_neighbor_pos].has_pieces():
                 valid_moves.append(neighbor_pos)
     
+    return valid_moves
+
+def get_all_valid_moves_for_color(game, tiles, tile_dict):
+    valid_moves = {}
+    for tile in tiles:
+        if tile.has_pieces() and tile.pieces[-1].color == game.current_state:
+            valid_moves[(tile.pieces[-1],tile.position)] = get_valid_moves(tile.pieces[-1], game, tiles, tile_dict)
+        elif tile.has_pieces() and tile.pieces[-1].color != game.current_state:
+            valid_moves[(tile.pieces[-1],tile.position)] = []
     return valid_moves
