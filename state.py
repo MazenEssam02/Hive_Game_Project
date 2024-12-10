@@ -92,3 +92,33 @@ class TurnTimer():
 
     def get_time(self):
         return self.turn_time
+    
+class GameState:
+    def __init__(self):
+        self.turn = 1
+        self.current_state = 'WHITE'
+        self.tiles = []
+        self.tile_dict = {tile.position: tile for tile in self.tiles}
+        self.selected_tile = None
+        self.selected_piece = None
+        self.selected_piece_moves = []
+        self.history = []
+
+    def make_move(self, piece, from_tile, to_tile):
+        self.history.append({"piece": piece, "from_tile": from_tile, "to_tile": to_tile})
+        piece.position = to_tile.position
+        from_tile.pieces.remove(piece)
+        to_tile.pieces.append(piece)
+        self.turn += 1
+
+    def undo_move(self):
+        if not self.history:
+            raise ValueError("No moves to undo!")
+        last_move = self.history.pop()
+        piece = last_move["piece"]
+        from_tile = last_move["from_tile"]
+        to_tile = last_move["to_tile"]
+        piece.position = from_tile.position
+        to_tile.pieces.remove(piece)
+        from_tile.pieces.append(piece)
+        self.turn -= 1
