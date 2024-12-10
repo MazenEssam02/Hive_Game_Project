@@ -6,7 +6,7 @@ from constant import WIDTH, HEIGHT, WHITE, TIMER_EVENT
 from hex import draw_grid, get_clicked_hex, generate_tile_dict
 from turn import turn_terminal
 from state import state, TurnTimer
-from Controller import get_valid_moves, is_queen_surrounded, get_all_valid_moves_for_color
+from Controller import get_valid_moves, is_queen_surrounded, get_all_valid_moves_for_color,next_move,movePiece
 # init pygame
 pygame.init()
 
@@ -77,41 +77,57 @@ while game.running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game.quit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                print(get_all_valid_moves_for_color(game, all_tiles, all_tile_dict))
-                mouse_pos = pygame.mouse.get_pos()
-                clicked_tile = get_clicked_hex(screen, all_tiles, mouse_pos)
-                if clicked_tile:
-                    if selected_tile is None:
-                        if clicked_tile.pieces:
-                            # Check if the piece belongs to the current player
-                            piece = clicked_tile.pieces[-1]
-                            if game.current_state == piece.color:
-                                selected_tile = clicked_tile
-                                selected_tile.selected()
-                                valid_moves = get_valid_moves(
-                                    piece, game, tiles, tile_dict)
-                                for move in valid_moves:
-                                    for tile in tiles:
-                                        if move == tile.position:
-                                            tile.highlight()
-                    else:
-                        if selected_tile != clicked_tile and clicked_tile.position in valid_moves:
-                            selected_tile.move_piece(clicked_tile)
-                            queen_color = is_queen_surrounded(piece, tile_dict)
-                            if queen_color:
-                                
-                                loser_color = queen_color
-                                game.start_end_loop()
-                                pygame.time.delay(200)
+            if game.current_state =='WHITE':
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    print(get_all_valid_moves_for_color(game, all_tiles, all_tile_dict))
+                    mouse_pos = pygame.mouse.get_pos()
+                    clicked_tile = get_clicked_hex(screen, all_tiles, mouse_pos)
+                    if clicked_tile:
+                        if selected_tile is None:
+                            if clicked_tile.pieces:
+                                # Check if the piece belongs to the current player
+                                piece = clicked_tile.pieces[-1]
+                                if game.current_state == piece.color:
+                                    selected_tile = clicked_tile
+                                    selected_tile.selected()
+                                    valid_moves = get_valid_moves(
+                                        piece, game, tiles, tile_dict)
+                                    for move in valid_moves:
+                                        for tile in tiles:
+                                            if move == tile.position:
+                                                tile.highlight()
+                        else:
+                            if selected_tile != clicked_tile and clicked_tile.position in valid_moves:
+                                selected_tile.move_piece(clicked_tile)
+                                queen_color = is_queen_surrounded(piece, tile_dict)
+                                if queen_color:
 
-                            game.change_turn()
-                            turn_panel.update(screen, game.current_state)
-                            timer.reset_timer()
-                        selected_tile.unhighlight()
-                        selected_tile = None
-                        for tile in tiles:
-                            tile.unhighlight()
+                                    loser_color = queen_color
+                                    game.start_end_loop()
+                                    pygame.time.delay(200)
+
+                                game.change_turn()
+                                turn_panel.update(screen, game.current_state)
+                                timer.reset_timer()
+                            selected_tile.unhighlight()
+                            selected_tile = None
+                            for tile in tiles:
+                                tile.unhighlight()
+            elif game.current_state == 'BLACK':
+                print(game.current_state)
+                print(get_all_valid_moves_for_color(game, all_tiles, all_tile_dict))
+                (piece,start,end) =next_move(game, all_tiles,all_tile_dict,tiles, tile_dict)
+                print(piece, start, end)
+                if piece:
+                      movePiece(piece,start,end,all_tiles)
+                      queen_color = is_queen_surrounded(piece, tile_dict)
+                      if queen_color:
+                            loser_color = queen_color
+                            game.start_end_loop()
+                            pygame.time.delay(200)
+                      game.change_turn()
+                      turn_panel.update(screen, game.current_state)
+                      timer.reset_timer()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
 

@@ -61,6 +61,10 @@ class hex:
     def remove_piece(self):
         self.pieces.pop(-1)
 
+    def remove(self, piece):
+        if piece in self.pieces:
+            self.pieces.remove(piece)
+
     def move_piece(self, new_tile):
         new_tile.add_piece(self.pieces[-1])
         self.remove_piece()

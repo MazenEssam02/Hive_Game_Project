@@ -76,7 +76,6 @@ class state:
     def get_turn(self):
         return self.current_state
 
-
 class TurnTimer():
     def __init__(self):
         self.turn_time = 180
