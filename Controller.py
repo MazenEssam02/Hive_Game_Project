@@ -102,13 +102,10 @@ def filter_moves(piece, valid_moves, tiles):
                 # Move the piece to the new position
                 new_tile = next(tile for tile in tiles if tile.position == move)
                 new_tile.pieces.append(piece)
-                for neighbor_pos in hex_neighbors(new_tile.position):
-                    for neighbor_tile in tiles:
-                        if neighbor_tile.position == neighbor_pos and neighbor_tile.has_pieces():
-                            filtered_moves.append(move)
-                            break
+                if is_hive_connected(tiles):
+                    filtered_moves.append(move)
                 new_tile.pieces.remove(piece)
-        
+
         # Revert the piece to its original position
         original_tile.pieces.append(piece)
         return filtered_moves
@@ -190,6 +187,113 @@ def get_all_valid_moves_for_color(game, tiles, tile_dict):
     for tile in tiles:
         if tile.has_pieces() and tile.pieces[-1].color == game.current_state:
             valid_moves[(tile.pieces[-1],tile.position)] = get_valid_moves(tile.pieces[-1], game, tiles, tile_dict)
-        elif tile.has_pieces() and tile.pieces[-1].color != game.current_state:
-            valid_moves[(tile.pieces[-1],tile.position)] = []
     return valid_moves
+
+def movePiece(piece,oldPosition,newPosition,tiles):
+    for tile in tiles:
+     if tile.has_pieces() and tile.pieces[0] == piece:
+        tile.remove_piece()
+    for tile in tiles:
+        if tile.position == newPosition:
+            tile.add_piece(piece)
+            break
+
+def count_queenbee_black_surronded(tiles_dict):
+    black_queenbee = 0
+    queen_bee_position = None
+
+    # Find the position of the black queen bee
+    for tile in tiles_dict.values():
+        if tile.has_pieces():
+            for piece in tile.pieces:
+                if piece.piece_type == "Queen Bee" and piece.color == "BLACK":
+                    queen_bee_position = tile.position
+                    break
+            if queen_bee_position:
+                break
+
+    if not queen_bee_position:
+        return 0  # No black queen bee found
+
+    # Count the number of surrounding tiles that are occupied
+    for neighbor_pos in hex_neighbors(queen_bee_position):
+        neighbor_tile = tiles_dict.get(neighbor_pos)
+        if neighbor_tile and neighbor_tile.has_pieces():
+            black_queenbee += 1
+
+    return black_queenbee
+def count_queenbee_white_surronded(tiles_dict):
+    white_queenbee = 0
+    queen_bee_position = None
+
+    # Find the position of the white queen bee
+    for tile in tiles_dict.values():
+        if tile.has_pieces():
+            for piece in tile.pieces:
+                if piece.piece_type == "Queen Bee" and piece.color == "WHITE":
+                    queen_bee_position = tile.position
+                    break
+            if queen_bee_position:
+                break
+
+    if not queen_bee_position:
+        return 0  # No black queen bee found
+
+    # Count the number of surrounding tiles that are occupied
+    for neighbor_pos in hex_neighbors(queen_bee_position):
+        neighbor_tile = tiles_dict.get(neighbor_pos)
+        if neighbor_tile and neighbor_tile.has_pieces():
+            white_queenbee += 1
+
+    return white_queenbee
+def scoreBoard(tile_dict):
+    black_surronded = count_queenbee_black_surronded(tile_dict)
+    white_surronded = count_queenbee_white_surronded(tile_dict)
+
+    return 10*(black_surronded - white_surronded)
+
+def board_value(game, tile_dict):
+    result = scoreBoard(tile_dict)
+    if game.current_state == "BLACK":
+        return result * -1
+    return result
+
+
+def minimax(game, tiles, tile_dict, depth, maximizing_player):
+    if depth == 0:
+        return board_value(game, tile_dict)
+
+    valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict)
+    if maximizing_player:
+        best_value = -1000
+        for (piece, position), moves in valid_moves.items():
+            for move in moves:
+                movePiece(piece, position, move, tiles)
+                value = minimax(game, tiles, tile_dict, depth - 1, False)
+                movePiece(piece, move, position, tiles)  # Revert move
+                best_value = max(best_value, value)
+    else:
+        best_value = 1000
+        for (piece, position), moves in valid_moves.items():
+            for move in moves:
+                movePiece(piece, position, move, tiles)
+                value = minimax(game, tiles, tile_dict, depth - 1, True)
+                movePiece(piece, move, position, tiles)  # Revert move
+                best_value = min(best_value, value)
+
+    return best_value
+
+
+def next_move(game, all_tiles, all_tile_dict, tiles, tile_dict):
+    valid_moves = get_all_valid_moves_for_color(game, all_tiles, all_tile_dict)
+    best_move = None
+    best_value = -1000
+    for (piece, position), moves in valid_moves.items():
+        for move in moves:
+            movePiece(piece, position, move, tiles)
+            value = minimax(game, tiles, tile_dict,2, False)
+            movePiece(piece, move, position, tiles)  # Revert move
+            if value > best_value:
+                best_value = value
+                best_move = (piece, position, move)
+    return best_move
