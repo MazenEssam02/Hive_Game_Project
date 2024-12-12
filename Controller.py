@@ -297,3 +297,49 @@ def next_move(game, all_tiles, all_tile_dict, tiles, tile_dict):
                 best_value = value
                 best_move = (piece, position, move)
     return best_move
+
+def minimax_with_pruning(game, tiles, tile_dict, depth, alpha, beta, maximizing_player):
+    if depth == 0 or game.is_game_over():
+        return board_value(game, tile_dict)
+    
+    valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict)
+    if maximizing_player:
+        best_value = -1000
+        for (piece, position), moves in valid_moves.items():
+            for move in moves:
+                movePiece(piece, position, move, tiles)
+                value = minimax_with_pruning(game, tiles, tile_dict, depth - 1, alpha, beta, False)
+                movePiece(piece, move, position, tiles)  # Revert move
+                best_value = max(best_value, value)
+                alpha = max(alpha, value)
+                if beta <= alpha:
+                    break  # Beta cut-off
+        return best_value
+    else:
+        best_value = 1000
+        for (piece, position), moves in valid_moves.items():
+            for move in moves:
+                movePiece(piece, position, move, tiles)
+                value = minimax_with_pruning(game, tiles, tile_dict, depth - 1, alpha, beta, True)
+                movePiece(piece, move, position, tiles)  # Revert move
+                best_value = min(best_value, value)
+                beta = min(beta, value)
+                if beta <= alpha:
+                    break  # Alpha cut-off
+        return best_value
+    
+def ai_move(game, tiles, tile_dict, depth):
+    best_value = -1000
+    best_move = None
+    valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict)
+
+    for (piece, position), moves in valid_moves.items():
+        for move in moves:
+            movePiece(piece, position, move, tiles)
+            value = minimax_with_pruning(game, tiles, tile_dict, depth - 1, float('-inf'), float('inf'), False)
+            movePiece(piece, move, position, tiles)  # Revert move
+            if value > best_value:
+                best_value = value
+                best_move = (piece, position, move)
+
+    return best_move
