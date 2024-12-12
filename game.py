@@ -17,7 +17,7 @@ timer = TurnTimer()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Hive Game")
 tiles = []
-tile_dict = {}
+# tile_dict = {}
 white_inventory = None
 black_inventory = None
 turn_panel = None
@@ -99,7 +99,7 @@ while game.running:
                 mouse_pos = pygame.mouse.get_pos()
                 clicked_tile = get_clicked_hex(screen, all_tiles, mouse_pos)
                 if clicked_tile:
-                    (selected_tile, loser_color, valid_moves, piece) = humen_move(game, tiles, tile_dict,
+                    (selected_tile, loser_color, valid_moves, piece) = humen_move(game, tiles, all_tile_dict,
                                                                                   clicked_tile, selected_tile, loser_color, turn_panel, screen, timer, valid_moves, piece)
                     if game.is_game_over:
                          game.start_end_loop()

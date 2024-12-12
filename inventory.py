@@ -38,11 +38,11 @@ class Inventory_Frame:
         if white:
             self.color = 'WHITE'
             self.bg_color=WHITE
-            self.row=-10
+            self.row=-20
         else:
             self.color = 'BLACK'
             self.bg_color=GREY
-            self.row=-5
+            self.row=-10
         for i in range(0, 5):
             self.tile_rects.append(pygame.Rect(inner_left + i * stock_width
                                    + 2, inner_top + title_height + 2,
@@ -83,7 +83,7 @@ class Inventory_Frame:
                     self.tiles.append(Inventory_Tile(self.row,self.col,tile_pos, 20, self.bg_color,
                                                      piece=Grasshopper(self.color)))
             if i == 4:
-                self.col+=1
+                self.row+=1
                 for j in [25, 67, 109]:
                     self.col+=1
                     tile_pos = (inner_left + i * stock_width

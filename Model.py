@@ -128,13 +128,17 @@ class Grasshopper(Piece):
                 if current_tile and current_tile.has_pieces():
                     # Continue moving in the same direction until an empty tile is found
                     while True:
+                        if current_tile:
+                        
                         # Check if the tile is empty and add it to the valid moves
-                        if not current_tile.has_pieces():
-                            valid_moves.append(current_pos)
+                            if not current_tile.has_pieces():
+                                valid_moves.append(current_pos)
+                                break
+                            # Move to the next position in the current direction
+                            current_pos = (current_pos[0] + direction[0], current_pos[1] + direction[1])
+                            current_tile = next((t for t in tiles if t.position == current_pos), None)
+                        else:   
                             break
-                        # Move to the next position in the current direction
-                        current_pos = (current_pos[0] + direction[0], current_pos[1] + direction[1])
-                        current_tile = next((t for t in tiles if t.position == current_pos), None)
         else:
             # The piece is in the inventory, check for tiles already on the board
             valid_moves = place_piece(self, tiles)

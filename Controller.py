@@ -328,7 +328,7 @@ def minimax_with_pruning(game, tiles, tile_dict, depth, alpha, beta, maximizing_
                     break  # Alpha cut-off
         return best_value
     
-def ai_move(game, tiles, tile_dict, depth=2):
+def ai_move(game, tiles, tile_dict, depth=4):
     best_value = -1000
     best_move = None
     valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict)
@@ -340,6 +340,7 @@ def ai_move(game, tiles, tile_dict, depth=2):
             movePiece(piece, move, position, tiles)  # Revert move
             if value > best_value:
                 best_value = value
+                
                 best_move = (tile_dict[position], tile_dict[move])
 
     return best_move
