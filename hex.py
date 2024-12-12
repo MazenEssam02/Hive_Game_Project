@@ -96,8 +96,8 @@ class hex:
 
 class Inventory_Tile(hex):
 
-    def __init__(self,  center, radius, color, piece):
-        super().__init__(-20, -20, center, color, piece)
+    def __init__(self, row,col, center, radius, color, piece):
+        super().__init__(row, col, center, color, piece)
 
 
 def hex_neighbors(hex):

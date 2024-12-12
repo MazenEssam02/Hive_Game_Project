@@ -17,7 +17,7 @@ class Inventory_Frame:
 
         inventory_width = WIDTH / 2
         inventory_height = 170
-
+        self.col=0
         inner_left = left + 5
         inner_top = top + 5
         inner_width = inventory_width - 10
@@ -38,9 +38,11 @@ class Inventory_Frame:
         if white:
             self.color = 'WHITE'
             self.bg_color=WHITE
+            self.row=-10
         else:
             self.color = 'BLACK'
             self.bg_color=GREY
+            self.row=-5
         for i in range(0, 5):
             self.tile_rects.append(pygame.Rect(inner_left + i * stock_width
                                    + 2, inner_top + title_height + 2,
@@ -50,36 +52,44 @@ class Inventory_Frame:
                 tile_pos = (inner_left + i * stock_width + stock_width
                             / 2, inner_top + title_height
                             + stock_height / 2)
-                self.tiles.append(Inventory_Tile(tile_pos,
+                self.tiles.append(Inventory_Tile(self.row,self.col,tile_pos,
                                   20, self.bg_color,
                                   piece=QueenBee(self.color)))
             if i == 1:
+                self.row+=1
                 for j in range(1, 3):
+                    self.col+=1
                     tile_pos = (inner_left + i * stock_width
                                 + stock_width / 2, inner_top
                                 + title_height + j * stock_height / 3)
-                    self.tiles.append(Inventory_Tile(tile_pos, 20, self.bg_color,
+                    self.tiles.append(Inventory_Tile(self.row,self.col,tile_pos, 20, self.bg_color,
                                                      piece=Beetle(self.color)))
             if i == 2:
+                self.row+=1
                 for j in range(1, 3):
+                    self.col+=1
                     tile_pos = (inner_left + i * stock_width
                                 + stock_width / 2, inner_top
                                 + title_height + j * stock_height / 3)
-                    self.tiles.append(Inventory_Tile(tile_pos, 20, self.bg_color,
+                    self.tiles.append(Inventory_Tile(self.row,self.col,tile_pos, 20, self.bg_color,
                                                      piece=Spider(self.color)))
             if i == 3:
+                self.row+=1
                 for j in [25, 67, 109]:
+                    self.col+=1
                     tile_pos = (inner_left + i * stock_width
                                 + stock_width / 2, inner_top
                                 + title_height + j * stock_height / 135)
-                    self.tiles.append(Inventory_Tile(tile_pos, 20, self.bg_color,
+                    self.tiles.append(Inventory_Tile(self.row,self.col,tile_pos, 20, self.bg_color,
                                                      piece=Grasshopper(self.color)))
             if i == 4:
+                self.col+=1
                 for j in [25, 67, 109]:
+                    self.col+=1
                     tile_pos = (inner_left + i * stock_width
                                 + stock_width / 2, inner_top
                                 + title_height + j * stock_height / 135)
-                    self.tiles.append(Inventory_Tile(
+                    self.tiles.append(Inventory_Tile(self.row,self.col,
                         tile_pos, 20, self.bg_color, piece=SoldierAnt(self.color)))
         for tile in self.tiles:
             tile.pieces[0].update_pos(tile.center)

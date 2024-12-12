@@ -6,7 +6,7 @@ from constant import WIDTH, HEIGHT, WHITE, TIMER_EVENT
 from hex import draw_grid, get_clicked_hex, generate_tile_dict
 from turn import turn_terminal
 from state import state, TurnTimer
-from Controller import get_valid_moves, is_queen_surrounded, get_all_valid_moves_for_color,next_move,movePiece
+from Controller import get_valid_moves, is_queen_surrounded, get_all_valid_moves_for_color, ai_move, movePiece, humen_move
 # init pygame
 pygame.init()
 
@@ -24,6 +24,8 @@ turn_panel = None
 all_tiles = []
 selected_tile = None
 loser_color = None
+valid_moves = None
+piece = None
 
 
 def init():
@@ -79,50 +81,28 @@ while game.running:
         pygame.display.flip()
     # Main game loop
     while game.main_loop:
-        # print(game.selected_difficulty)
-        # print(game.selected_opponent)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game.quit()
+            if game.selected_opponent =="Human vs Computer" and game.current_state == 'BLACK':
+                (tile,new_tile)=ai_move(game, all_tiles, all_tile_dict)
+                tile.move_piece(new_tile)
+                game.change_turn()
+                turn_panel.update(screen, game.current_state)
+                timer.reset_timer()
+            elif game.selected_opponent =="Computer vs Computer" and (game.current_state == 'BLACK'or game.current_state == 'WHITE'):
+                ai_move(game, all_tiles, all_tile_dict)
+                game.change_turn()
+                turn_panel.update(screen, game.current_state)
+                timer.reset_timer()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                print(get_all_valid_moves_for_color(game, all_tiles, all_tile_dict))
                 mouse_pos = pygame.mouse.get_pos()
                 clicked_tile = get_clicked_hex(screen, all_tiles, mouse_pos)
                 if clicked_tile:
-                    if selected_tile is None:
-                        if clicked_tile.pieces:
-                            # Check if the piece belongs to the current player
-                            piece = clicked_tile.pieces[-1]
-                            if game.current_state == piece.color:
-                                selected_tile = clicked_tile
-                                selected_tile.selected()
-                                valid_moves = get_valid_moves(
-                                    piece, game, tiles, tile_dict)
-                                for move in valid_moves:
-                                    for tile in tiles:
-                                        if move == tile.position:
-                                            tile.highlight()
-                    else:
-                        if selected_tile != clicked_tile and clicked_tile.position in valid_moves:
-                            selected_tile.move_piece(clicked_tile)
-                            queen_color = is_queen_surrounded(piece, tile_dict)
-                            if queen_color:
-
-                                loser_color = queen_color
-                                game.start_end_loop()
-                                pygame.time.delay(200)
-
-                            game.change_turn()
-                            turn_panel.update(screen, game.current_state)
-                            timer.reset_timer()
-                        selected_tile.unhighlight()
-                        selected_tile = None
-                        for tile in tiles:
-                            tile.unhighlight()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-
-                    game.quit()
+                    (selected_tile, loser_color, valid_moves, piece) = humen_move(game, tiles, tile_dict,
+                                                                                  clicked_tile, selected_tile, loser_color, turn_panel, screen, timer, valid_moves, piece)
+                    if game.is_game_over:
+                         game.start_end_loop()
             elif event.type == TIMER_EVENT:
                 if timer.get_time() <= 0:
                     game.change_turn()
@@ -130,7 +110,7 @@ while game.running:
                     selected_tile.unhighlight()
                     selected_tile = None
                     for tile in tiles:
-                            tile.unhighlight()
+                        tile.unhighlight()
                     turn_panel.update(screen, game.current_state)
                     timer.reset_timer()
                 else:

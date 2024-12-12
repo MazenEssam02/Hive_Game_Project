@@ -1,5 +1,5 @@
 from hex import hex_neighbors
-
+import pygame
 def place_piece(piece, tiles):
     my_neighbors = set()
     opposing_neighbors = set()
@@ -299,7 +299,7 @@ def next_move(game, all_tiles, all_tile_dict, tiles, tile_dict):
     return best_move
 
 def minimax_with_pruning(game, tiles, tile_dict, depth, alpha, beta, maximizing_player):
-    if depth == 0 or game.is_game_over():
+    if depth == 0 or game.is_game_over:
         return board_value(game, tile_dict)
     
     valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict)
@@ -328,7 +328,7 @@ def minimax_with_pruning(game, tiles, tile_dict, depth, alpha, beta, maximizing_
                     break  # Alpha cut-off
         return best_value
     
-def ai_move(game, tiles, tile_dict, depth):
+def ai_move(game, tiles, tile_dict, depth=2):
     best_value = -1000
     best_move = None
     valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict)
@@ -340,6 +340,40 @@ def ai_move(game, tiles, tile_dict, depth):
             movePiece(piece, move, position, tiles)  # Revert move
             if value > best_value:
                 best_value = value
-                best_move = (piece, position, move)
+                best_move = (tile_dict[position], tile_dict[move])
 
     return best_move
+
+def humen_move(game,tiles,tile_dict,clicked_tile,selected_tile,loser_color,turn_panel,screen,timer,valid_moves,piece):
+    if selected_tile is None:
+        if clicked_tile.pieces:
+            # Check if the piece belongs to the current player
+            piece = clicked_tile.pieces[-1]
+            if game.current_state == piece.color:
+                selected_tile = clicked_tile
+                selected_tile.selected()
+                valid_moves = get_valid_moves(
+                    piece, game, tiles, tile_dict)
+                for move in valid_moves:
+                    for tile in tiles:
+                        if move == tile.position:
+                            tile.highlight()
+    else:
+        if selected_tile != clicked_tile and clicked_tile.position in valid_moves:
+            selected_tile.move_piece(clicked_tile)
+            queen_color = is_queen_surrounded(piece, tile_dict)
+            if queen_color:
+
+                loser_color = queen_color
+                game.is_game_over=True
+                pygame.time.delay(200)
+
+            game.change_turn()
+            turn_panel.update(screen, game.current_state)
+            timer.reset_timer()
+        selected_tile.unhighlight()
+        selected_tile = None
+        for tile in tiles:
+            tile.unhighlight()
+    return (selected_tile,loser_color,valid_moves,piece)
+

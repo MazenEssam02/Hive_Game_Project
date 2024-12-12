@@ -11,6 +11,7 @@ class state:
         self.end_loop = False
         self.opponent_menu = False
         self.difficulitiy_menu = False
+        self.is_game_over = False
         self.play_new_game = False
         self.selected_opponent = None
         self.selected_difficulty = None
@@ -21,25 +22,30 @@ class state:
         self.main_loop = False
         self.end_loop = True
 
+
     def start_difficulty_menu(self):
         self.menu_loop = False
         self.opponent_menu = False
         self.difficulitiy_menu = True
+        self.is_game_over = False
 
     def start_opponent_menu(self):
         self.menu_loop = False
         self.opponent_menu = True
         self.end_loop = False
         self.play_new_game = False
+        self.is_game_over = False
     def start_menu_loop(self):
         self.menu_loop = True
         self.main_loop = False
+        self.is_game_over = False
     def start_main_loop(self):
         self.opponent_menu = False
         self.difficulitiy_menu = False
         self.menu_loop = False
         self.play_new_game = False 
         self.main_loop = True
+        self.is_game_over = False
         self.start_game()
     def start_new_game(self):
         self.opponent_menu = False
@@ -47,6 +53,7 @@ class state:
         self.menu_loop = False
         self.main_loop = False
         self.end_loop = False
+        self.is_game_over = False
         self.play_new_game = True 
     def quit(self):
         self.opponent_menu = False
