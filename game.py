@@ -6,7 +6,7 @@ from constant import WIDTH, HEIGHT, WHITE, TIMER_EVENT
 from hex import draw_grid, get_clicked_hex, generate_tile_dict
 from turn import turn_terminal
 from state import state, TurnTimer
-from Controller import get_valid_moves, is_queen_surrounded
+from Controller import get_valid_moves, is_queen_surrounded, get_all_valid_moves_for_color,next_move,movePiece
 # init pygame
 pygame.init()
 
@@ -28,7 +28,7 @@ loser_color = None
 
 def init():
     # draw grid
-    global tiles, tile_dict, white_inventory, black_inventory, all_tiles, turn_panel, selected_tile
+    global tiles, tile_dict, white_inventory, black_inventory, all_tiles, turn_panel, selected_tile, all_tile_dict
     tiles = draw_grid(screen, rows=16, cols=19)
     tile_dict = generate_tile_dict(tiles)
     white_inventory = Inventory_Frame((0, 170), 0, white=True)
@@ -36,6 +36,8 @@ def init():
     white_tiles = white_inventory.draw(screen)
     black_tiles = black_inventory.draw(screen)
     all_tiles = tiles + white_tiles + black_tiles
+    all_tile_dict = generate_tile_dict(all_tiles)
+
     turn_panel = turn_terminal((screen.get_width() // 2 - 150, 0), 'WHITE')
     selected_tile = None
     loser_color = None
@@ -82,7 +84,8 @@ while game.running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game.quit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                print(get_all_valid_moves_for_color(game, all_tiles, all_tile_dict))
                 mouse_pos = pygame.mouse.get_pos()
                 clicked_tile = get_clicked_hex(screen, all_tiles, mouse_pos)
                 if clicked_tile:
@@ -123,6 +126,11 @@ while game.running:
             elif event.type == TIMER_EVENT:
                 if timer.get_time() <= 0:
                     game.change_turn()
+                    game.turn -= 1
+                    selected_tile.unhighlight()
+                    selected_tile = None
+                    for tile in tiles:
+                            tile.unhighlight()
                     turn_panel.update(screen, game.current_state)
                     timer.reset_timer()
                 else:
