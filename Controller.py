@@ -358,6 +358,12 @@ def scoreBoard(game, tiles, tile_dict):
 
     return score
 
+def board_value(game, all_tiles,tile_dict):
+    result = scoreBoard(game,all_tiles,tile_dict)
+    if game.current_state == "BLACK":
+        return result * -1
+    return result
+
 
 def minimax(game, tiles, tile_dict, depth, maximizing_player):
     global best_move
