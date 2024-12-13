@@ -258,40 +258,105 @@ def count_queenbee_white_surronded(tiles_dict):
             white_queenbee += 1
 
     return white_queenbee
-def scoreBoard(all_tiles,tile_dict):
-    total_score_white =0
-    total_score_black =0
-    for tile in all_tiles:
+
+# def scoreBoard(all_tiles,tile_dict):
+#     total_score_white =0
+#     total_score_black =0
+#     for tile in all_tiles:
+#         for piece in tile.pieces:
+#             if piece.piece_type == "Solider Ant" and piece.color == "WHITE":
+#                 total_score_white +=60
+#             elif piece.piece_type == "Beetle" and piece.color == "WHITE":
+#                 total_score_white +=80
+#             elif piece.piece_type == "Grasshopper" and piece.color == "WHITE":
+#                 total_score_white +=30
+#             elif piece.piece_type == "Spider" and piece.color == "WHITE":
+#                 total_score_white +=40
+#             elif piece.piece_type == "Beetle" and piece.color == "BLACK":
+#                 total_score_black +=80
+#             elif piece.piece_type == "Grasshopper" and piece.color == "BLACK":
+#                 total_score_black +=30
+#             elif piece.piece_type == "Spider" and piece.color == "BLACK":
+#                 total_score_black +=40
+#             elif piece.piece_type == "Solider Ant" and piece.color == "BLACK":
+#                 total_score_black +=60
+
+#     black_surronded = count_queenbee_black_surronded(tile_dict)
+#     white_surronded = count_queenbee_white_surronded(tile_dict)
+
+#     #print("score from board",20*(total_score_white-total_score_black)+30*(black_surronded-white_surronded))
+
+#     return 20*(total_score_white-total_score_black)+30*(black_surronded-white_surronded)
+
+# def board_value(game, all_tiles,tile_dict):
+#     result = scoreBoard(all_tiles,tile_dict)
+#     if game.current_state == "BLACK":
+#         return result * -1
+#     return result
+
+
+# New Scoring
+
+def count_pieces(tile_dict, color):
+    count = 0
+    for tile in tile_dict.values():
         for piece in tile.pieces:
-            if piece.piece_type == "Solider Ant" and piece.color == "WHITE":
-                total_score_white +=60
-            elif piece.piece_type == "Beetle" and piece.color == "WHITE":
-                total_score_white +=80
-            elif piece.piece_type == "Grasshopper" and piece.color == "WHITE":
-                total_score_white +=30
-            elif piece.piece_type == "Spider" and piece.color == "WHITE":
-                total_score_white +=40
-            elif piece.piece_type == "Beetle" and piece.color == "BLACK":
-                total_score_black +=80
-            elif piece.piece_type == "Grasshopper" and piece.color == "BLACK":
-                total_score_black +=30
-            elif piece.piece_type == "Spider" and piece.color == "BLACK":
-                total_score_black +=40
-            elif piece.piece_type == "Solider Ant" and piece.color == "BLACK":
-                total_score_black +=60
+            if piece.color == color:
+                count += 1
+    return count
 
-    black_surronded = count_queenbee_black_surronded(tile_dict)
-    white_surronded = count_queenbee_white_surronded(tile_dict)
+def count_valid_moves(game, tiles, tile_dict, color):
+    valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict,color)
+    move_count = sum(len(moves) for moves in valid_moves.values())
+    return move_count
 
-    #print("score from board",20*(total_score_white-total_score_black)+30*(black_surronded-white_surronded))
+def piece_value(piece):
+    if piece.piece_type == "Queen Bee":
+        return 1
+    elif piece.piece_type == "Beetle":
+        return 3
+    elif piece.piece_type == "Soldier Ant":
+        return 10
+    elif piece.piece_type == "Grasshopper":
+        return 7
+    elif piece.piece_type == "Spider":
+        return 5
+    return 0
 
-    return 20*(total_score_white-total_score_black)+30*(black_surronded-white_surronded)
+def evaluate_pieces(tile_dict, color):
+    value = 0
+    for tile in tile_dict.values():
+        for piece in tile.pieces:
+            if piece.color == color:
+                value += piece_value(piece)
+    return value
 
-def board_value(game, all_tiles,tile_dict):
-    result = scoreBoard(all_tiles,tile_dict)
-    if game.current_state == "BLACK":
-        return result * -1
-    return result
+def scoreBoard(game, tiles, tile_dict):
+    black_surrounded = count_queenbee_black_surronded(tile_dict)
+    white_surrounded = count_queenbee_white_surronded(tile_dict)
+
+    black_piece_count = count_pieces(tile_dict, "BLACK")
+    white_piece_count = count_pieces(tile_dict, "WHITE")
+
+    black_move_count = count_valid_moves(game, tiles, tile_dict, "BLACK")
+    white_move_count = count_valid_moves(game, tiles, tile_dict, "WHITE")
+
+    black_piece_value = evaluate_pieces(tile_dict, "BLACK")
+    white_piece_value = evaluate_pieces(tile_dict, "WHITE")
+
+    # Heuristic weights
+    queen_surround_weight = 10
+    piece_count_weight = 1
+    move_count_weight = 1
+    piece_value_weight = 2
+
+    score = (queen_surround_weight * (black_surrounded - white_surrounded) +
+             piece_count_weight * (black_piece_count - white_piece_count) +
+             move_count_weight * (black_move_count - white_move_count) +
+             piece_value_weight * (black_piece_value - white_piece_value))
+    #print("score from board",score)
+
+    return score
 
 
 def minimax(game, tiles, tile_dict, depth, maximizing_player):
