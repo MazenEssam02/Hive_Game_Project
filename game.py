@@ -6,7 +6,7 @@ from constant import WIDTH, HEIGHT, WHITE, TIMER_EVENT
 from hex import draw_grid, get_clicked_hex, generate_tile_dict
 from turn import turn_terminal
 from state import state, TurnTimer
-from Controller import get_valid_moves, is_queen_surrounded, get_all_valid_moves_for_color, ai_move, movePiece, humen_move
+from Controller import get_valid_moves, is_queen_surrounded, get_all_valid_moves_for_color, ai_move, humen_move,move_piece
 # init pygame
 pygame.init()
 
