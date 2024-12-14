@@ -90,10 +90,10 @@ class Beetle(Piece):
                             if neighbor == tile.position and tile.has_pieces():
                                 valid_moves.append(neighbor)
                 # The beetle is on top of the hive
-            else:
-                neighbors = hex_neighbors(self.position)
-                for neighbor in neighbors:
-                    valid_moves.append(neighbor)
+                else:
+                    neighbors = hex_neighbors(self.position)
+                    for neighbor in neighbors:
+                        valid_moves.append(neighbor)
             
         else:
             # The piece is in the inventory, check for tiles already on the board
