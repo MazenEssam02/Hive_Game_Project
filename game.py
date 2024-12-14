@@ -99,9 +99,9 @@ while game.running:
                 mouse_pos = pygame.mouse.get_pos()
                 clicked_tile = get_clicked_hex(screen, all_tiles, mouse_pos)
                 if clicked_tile:
-                    print (game.turn)
-                    print("From main loop")
-                    print (get_all_valid_moves_for_color(game,tiles,tile_dict,all_tiles, all_tile_dict, game.current_state))
+                    # print (game.turn)
+                    # print("From main loop")
+                    # print (get_all_valid_moves_for_color(game,tiles,tile_dict,all_tiles, all_tile_dict, game.current_state))
                     (selected_tile, loser_color, valid_moves, piece) = human_move(game, tiles, tile_dict,all_tiles, all_tile_dict,
                                                                                   clicked_tile, selected_tile, loser_color, turn_panel, screen, timer, valid_moves, piece)
                     if game.is_game_over:
