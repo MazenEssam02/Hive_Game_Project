@@ -14,7 +14,7 @@ def place_piece(piece, tiles):
     valid_moves = [move for move in my_neighbors - opposing_neighbors if not any(tile.position == move and tile.has_pieces() for tile in tiles)]
     return valid_moves
 
-def is_piece_on_board(piece, tiles):
+def is_piece_on_board(piece, tiles):#modify
     for tile in tiles:
         if piece.position == tile.position:
             return True
@@ -71,7 +71,7 @@ def is_hive_connected(tiles):
     if not start_tile:
         return True  # No pieces on the board, so it's trivially connected
 
-    # Perform a BFS or DFS to check connectivity
+    # Perform a DFS to check connectivity
     def dfs(tile):
         if tile in visited:
             return
@@ -98,18 +98,21 @@ def filter_moves(piece, valid_moves, tiles):
         original_tile = next(tile for tile in tiles if tile.position == original_position)
         original_tile.pieces.remove(piece)
         if is_hive_connected(tiles):
-            for move in valid_moves:
-                # Move the piece to the new position
-                new_tile = next(tile for tile in tiles if tile.position == move)
-                new_tile.pieces.append(piece)
-                if is_hive_connected(tiles):
-                    filtered_moves.append(move)
-                new_tile.pieces.remove(piece)
+            filtered_moves = valid_moves
+            # for move in valid_moves:
+            #     # Move the piece to the new position
+            #     new_tile = next(tile for tile in tiles if tile.position == move)
+            #     new_tile.pieces.append(piece)
+            #     if is_hive_connected(tiles):
+            #         filtered_moves.append(move)
+            #     new_tile.pieces.remove(piece)
 
         # Revert the piece to its original position
         original_tile.pieces.append(piece)
+        print("filtered moves from if: ",filtered_moves)
         return filtered_moves
     else:
+        print("filtered moves from else: ",valid_moves)
         return valid_moves
 
 def get_valid_moves(piece, game, tiles, tile_dict):
@@ -142,6 +145,13 @@ def get_valid_moves(piece, game, tiles, tile_dict):
     # Filter out moves that break the hive
     valid_moves = filter_moves(piece, valid_moves, tiles)
 
+    return valid_moves
+
+def get_all_valid_moves_for_color(game,tiles,tile_dict, all_tiles, all_tile_dict,color):
+    valid_moves = {}
+    for tile in all_tiles:
+        if tile.has_pieces() and tile.pieces[-1].color == color:
+            valid_moves[(tile.pieces[-1],tile.position)] = get_valid_moves(tile.pieces[0], game, tiles, tile_dict)
     return valid_moves
 
 def can_slide_out(neighbors, tiles):
@@ -182,12 +192,6 @@ def generate_adjacent_moves(position, tile_dict):
     
     return valid_moves
 
-def get_all_valid_moves_for_color(game, tiles, tile_dict,color):
-    valid_moves = {}
-    for tile in tiles:
-        if tile.has_pieces() and tile.pieces[-1].color == color:
-            valid_moves[(tile.pieces[-1],tile.position)] = get_valid_moves(tile.pieces[-1], game, tiles, tile_dict)
-    return valid_moves
 
 def move_piece(piece,old_position,newPosition,tiles):
     for tile in tiles:
@@ -305,8 +309,8 @@ def count_pieces(tile_dict, color):
                 count += 1
     return count
 
-def count_valid_moves(game, tiles, tile_dict, color):
-    valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict,color)
+def count_valid_moves(game, tiles, tile_dict, all_tiles, all_tile_dict,color):
+    valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict,all_tiles, all_tile_dict,color)
     move_count = sum(len(moves) for moves in valid_moves.values())
     return move_count
 
@@ -331,15 +335,15 @@ def evaluate_pieces(tile_dict, color):
                 value += piece_value(piece)
     return value
 
-def scoreBoard(game, tiles, tile_dict):
+def scoreBoard(game, tiles, tile_dict,all_tiles, all_tile_dict):
     black_surrounded = count_queenbee_black_surronded(tile_dict)
     white_surrounded = count_queenbee_white_surronded(tile_dict)
 
     black_piece_count = count_pieces(tile_dict, "BLACK")
     white_piece_count = count_pieces(tile_dict, "WHITE")
 
-    black_move_count = count_valid_moves(game, tiles, tile_dict, "BLACK")
-    white_move_count = count_valid_moves(game, tiles, tile_dict, "WHITE")
+    black_move_count = count_valid_moves(game, tiles, tile_dict,all_tiles, all_tile_dict, "BLACK")
+    white_move_count = count_valid_moves(game, tiles, tile_dict,all_tiles, all_tile_dict,"WHITE")
 
     black_piece_value = evaluate_pieces(tile_dict, "BLACK")
     white_piece_value = evaluate_pieces(tile_dict, "WHITE")
@@ -358,30 +362,30 @@ def scoreBoard(game, tiles, tile_dict):
 
     return score
 
-def board_value(game, all_tiles,tile_dict):
-    result = scoreBoard(game,all_tiles,tile_dict)
+def board_value(game,tiles,tile_dict,all_tiles,all_tile_dict):
+    result = scoreBoard(game,tiles,tile_dict,all_tiles,all_tile_dict)
     if game.current_state == "BLACK":
         return result * -1
     return result
 
 
-def minimax(game, tiles, tile_dict, depth, maximizing_player):
+def minimax(game, tiles, tile_dict,all_tiles, all_tile_dict, depth, maximizing_player):
     global best_move
     global best_value
     if depth == 0:
-        return board_value(game, tiles, tile_dict)
+        return board_value(game, tiles, tile_dict,all_tiles,all_tile_dict)
 
     if maximizing_player:
-        valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict,"WHITE")
+        valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles, all_tile_dict,"WHITE")
     else:
-        valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict,"BLACK")
+        valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles, all_tile_dict,"BLACK")
     #print(valid_moves)
     if maximizing_player:
         best_value = -1000
         for (piece, position), moves in valid_moves.items():
             for move in moves:
                 move_piece(piece, position, move, tiles)
-                value = minimax(game, tiles, tile_dict, depth - 1, False)
+                value = minimax(game, tiles, tile_dict,all_tiles,all_tile_dict, depth - 1, False)
                 #print("value retured from minimax",value)
                 undo_move(piece, position, move, tiles) # Revert move
 
@@ -397,7 +401,7 @@ def minimax(game, tiles, tile_dict, depth, maximizing_player):
         for (piece, position), moves in valid_moves.items():
             for move in moves:
                 move_piece(piece, position, move, tiles)
-                value = minimax(game, tiles, tile_dict, depth - 1, True)
+                value = minimax(game, tiles, tile_dict, all_tiles,all_tile_dict,depth - 1, True)
                 undo_move(piece, position, move, tiles)  # Revert move
                 if value < best_value:
                     best_value = value
@@ -405,17 +409,17 @@ def minimax(game, tiles, tile_dict, depth, maximizing_player):
 
         return best_value
 
-def minimax_with_pruning(game, tiles, tile_dict, depth, alpha, beta, maximizing_player):
+def minimax_with_pruning(game, tiles, tile_dict,all_tiles, all_tile_dict, depth, alpha, beta, maximizing_player):
     if depth == 0 or game.is_game_over:
         return board_value(game, tile_dict)
 
-    valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict)
+    valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles, all_tile_dict,)
     if maximizing_player:
         best_value = -1000
         for (piece, position), moves in valid_moves.items():
             for move in moves:
                 move_piece(piece, position, move, tiles)
-                value = minimax_with_pruning(game, tiles, tile_dict, depth - 1, alpha, beta, False)
+                value = minimax_with_pruning(game, tiles, tile_dict,all_tiles, all_tile_dict, depth - 1, alpha, beta, False)
                 undo_move(piece, position, move, tiles)  # Revert move
                 best_value = max(best_value, value)
                 alpha = max(alpha, value)
@@ -427,7 +431,7 @@ def minimax_with_pruning(game, tiles, tile_dict, depth, alpha, beta, maximizing_
         for (piece, position), moves in valid_moves.items():
             for move in moves:
                 move_piece(piece, position, move, tiles)
-                value = minimax_with_pruning(game, tiles, tile_dict, depth - 1, alpha, beta, True)
+                value = minimax_with_pruning(game, tiles, tile_dict,all_tiles, all_tile_dict, depth - 1, alpha, beta, True)
                 undo_move(piece, position, move, tiles)  # Revert move
                 best_value = min(best_value, value)
                 beta = min(beta, value)
@@ -435,15 +439,15 @@ def minimax_with_pruning(game, tiles, tile_dict, depth, alpha, beta, maximizing_
                     break  # Alpha cut-off
         return best_value
     
-def ai_move(game, tiles, tile_dict, depth=4):
+def ai_move(game, tiles, tile_dict, all_tiles, all_tile_dict,depth=4):
     best_value = 1000
     best_move = None
-    valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict,game.current_state)
+    valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict,all_tiles, all_tile_dict,game.current_state)
 
     for (piece, position), moves in valid_moves.items():
         for move in moves:
             move_piece(piece, position, move, tiles)
-            value = minimax(game, tiles, tile_dict, depth, True)
+            value = minimax(game, tiles, tile_dict,all_tiles, all_tile_dict ,depth, True)
             undo_move(piece, position, move, tiles)
             if value < best_value:
                 best_value = value
@@ -452,7 +456,7 @@ def ai_move(game, tiles, tile_dict, depth=4):
 
     return best_move
 
-def humen_move(game,tiles,tile_dict,clicked_tile,selected_tile,loser_color,turn_panel,screen,timer,valid_moves,piece):
+def human_move(game,tiles,tile_dict,all_tiles, all_tile_dict, clicked_tile,selected_tile,loser_color,turn_panel,screen,timer,valid_moves,piece):
     if selected_tile is None:
         if clicked_tile.pieces:
             # Check if the piece belongs to the current player
@@ -462,6 +466,8 @@ def humen_move(game,tiles,tile_dict,clicked_tile,selected_tile,loser_color,turn_
                 selected_tile.selected()
                 valid_moves = get_valid_moves(
                     piece, game, tiles, tile_dict)
+                print("From human move")
+                print(valid_moves)
                 for move in valid_moves:
                     for tile in tiles:
                         if move == tile.position:
