@@ -3,7 +3,6 @@ import pygame
 from constant import RADIUS
 from Controller import place_piece, is_piece_on_board, can_slide_out, generate_adjacent_moves, doesnt_break_hive
 
-
 class Piece:
     def __init__(self, piece_type, color):
         self.piece_type = piece_type
@@ -33,18 +32,10 @@ class QueenBee(Piece):
         # Queen Bee can move one space in any direction
         valid_moves = []
         if is_piece_on_board(self, tile_dict):
+            # The piece is on the board, check it can move without breaking the hive
             if doesnt_break_hive(self, tiles, tile_dict):
-                # The piece is on the board, check for neighboring tiles
-                neighbors = hex_neighbors(self.position)
-                free_spaces = can_slide_out(neighbors, tile_dict)
-                if free_spaces:
-                    # Check if the queen moves adjacent to neighboring pieces 
-                    for free_space in free_spaces:
-                        for neighbor_pos in neighbors:
-                            neighbor_tile = next((t for t in tiles if t.position == neighbor_pos), None)
-                            if neighbor_tile.has_pieces() and free_space in hex_neighbors(neighbor_pos):
-                                valid_moves.append(free_space)
-                                break
+                # Check for adjacent moves around the hive
+                valid_moves = generate_adjacent_moves(self.position, tile_dict)
         else:
             # The piece is in the inventory, check for tiles already on the board
             valid_moves = place_piece(self, tiles)
@@ -71,30 +62,19 @@ class Beetle(Piece):
         if is_piece_on_board(self, tile_dict):
             if doesnt_break_hive(self, tiles, tile_dict):
                 # Check if the beetle is on top of the hive
-                current_tile = next((t for t in tiles if t.position == self.position), None)
+                current_tile = tile_dict[self.position]
                 if current_tile.pieces[0] == self:
                     # The piece is on the board, check for neighboring tiles
-                    neighbors = hex_neighbors(self.position)
-                    free_spaces = can_slide_out(neighbors, tile_dict)
-                    if free_spaces:
-                        # Check if the beetle moves adjacent to neighboring pieces 
-                        for free_space in free_spaces:
-                            for neighbor_pos in neighbors:
-                                neighbor_tile = next((t for t in tiles if t.position == neighbor_pos), None)
-                                if neighbor_tile.has_pieces() and free_space in hex_neighbors(neighbor_pos):
-                                    valid_moves.append(free_space)
-                                    break
+                    valid_moves = generate_adjacent_moves(self.position, tile_dict)
                     # Check if the beetle can move on top of other pieces
-                    for neighbor in neighbors:
-                        for tile in tiles:
-                            if neighbor == tile.position and tile.has_pieces():
-                                valid_moves.append(neighbor)
-                # The beetle is on top of the hive
+                    for neighbor in hex_neighbors(self.position):
+                        if tile_dict[neighbor].has_pieces():
+                            valid_moves.append(neighbor)
                 else:
+                # The beetle is on top of the hive
                     neighbors = hex_neighbors(self.position)
                     for neighbor in neighbors:
                         valid_moves.append(neighbor)
-            
         else:
             # The piece is in the inventory, check for tiles already on the board
             valid_moves = place_piece(self, tiles)
@@ -132,7 +112,6 @@ class Grasshopper(Piece):
                         # Continue moving in the same direction until an empty tile is found
                         while True:
                             if current_tile:
-                            
                             # Check if the tile is empty and add it to the valid moves
                                 if not current_tile.has_pieces():
                                     valid_moves.append(current_pos)
@@ -162,7 +141,7 @@ class Spider(Piece):
         pos = (x - RADIUS, y - RADIUS)
         surface.blit(asset, pos)
 
-    # Spider moves exactly three spaces        
+    # Spider moves exactly three spaces
     def valid_moves(self, tiles, tile_dict):
         valid_moves = []
         if is_piece_on_board(self, tile_dict):
@@ -170,16 +149,12 @@ class Spider(Piece):
                 # The piece is on the board, check for neighboring tiles
                 visited = set()
                 stack = [(self.position, 0, self.position)]  # Stack stores tuples of (current_position, move_count, previous_position)
-
                 tile_dict[self.position].pieces.pop()
                 while stack:
                     position, move_count, prev_position = stack.pop()
                     if move_count == 3:
                         valid_moves.append(position)
                         continue
-
-                    # Temporarily remove the Spider from its current position
-
                     # Generate all possible adjacent moves around the hive
                     for neighbor in generate_adjacent_moves(position, tile_dict):
                         if neighbor not in visited and neighbor != self.position:
@@ -237,7 +212,7 @@ class SoldierAnt(Piece):
                         if neighbor not in visited and neighbor != self.position:
                             # Ensure the neighbor is adjacent to other pieces in the hive, not just the piece itself
                             if any(tile_dict[adj].has_pieces() for adj in hex_neighbors(neighbor) if adj in tile_dict and adj != self.position):
-                                # Check if the next valid move has a common free tile with the current position                            
+                                # Check if the next valid move has a common free tile with the current position
                                 common_free_tile = False
                                 for adj in hex_neighbors(neighbor):
                                     if not tile_dict[adj].has_pieces():
