@@ -6,7 +6,8 @@ from constant import WIDTH, HEIGHT, WHITE, TIMER_EVENT
 from hex import draw_grid, get_clicked_hex, generate_tile_dict
 from turn import turn_terminal
 from state import state, TurnTimer
-from Controller import get_valid_moves, is_queen_surrounded, get_all_valid_moves_for_color, ai_move, human_move,move_piece
+from Controller import get_valid_moves, is_queen_surrounded, get_all_valid_moves_for_color, human_move
+from AI import AI
 # init pygame
 pygame.init()
 
@@ -26,6 +27,8 @@ selected_tile = None
 loser_color = None
 valid_moves = None
 piece = None
+ai_player_black = AI("BLACK", 1)
+ai_player_white = AI("WHITE",1)
 
 
 def init():
@@ -85,16 +88,41 @@ while game.running:
             if event.type == pygame.QUIT:
                 game.quit()
             if game.selected_opponent =="Human vs Computer" and game.current_state == 'BLACK':
-                (tile,new_tile)=ai_move(game, tiles,tile_dict,all_tiles, all_tile_dict)
+                (piece,tile,new_tile)=ai_player_black.ai_move(game, tiles,tile_dict,all_tiles, all_tile_dict)
                 tile.move_piece(new_tile)
+
+                queen_color = is_queen_surrounded(piece, tile_dict)
+                if queen_color:
+                    loser_color = queen_color
+                    game.is_game_over = True
+                    pygame.time.delay(200)
                 game.change_turn()
                 turn_panel.update(screen, game.current_state)
                 timer.reset_timer()
             elif game.selected_opponent =="Computer vs Computer" and (game.current_state == 'BLACK'or game.current_state == 'WHITE'):
-                ai_move(game,tiles,tile_dict, all_tiles, all_tile_dict)
-                game.change_turn()
-                turn_panel.update(screen, game.current_state)
-                timer.reset_timer()
+                if game.current_state == "BLACK":
+                    (piece,tile, new_tile) = ai_player_black.ai_move(game, tiles, tile_dict, all_tiles, all_tile_dict)
+                    tile.move_piece(new_tile)
+                    queen_color = is_queen_surrounded(piece, tile_dict)
+                    if queen_color:
+                        loser_color = queen_color
+                        game.is_game_over = True
+                        pygame.time.delay(200)
+                    game.change_turn()
+                    turn_panel.update(screen, game.current_state)
+                    timer.reset_timer()
+                elif game.current_state == "WHITE":
+                    (piece,tile, new_tile) = ai_player_white.ai_move(game, tiles, tile_dict, all_tiles, all_tile_dict)
+                    tile.move_piece(new_tile)
+                    queen_color = is_queen_surrounded(piece, tile_dict)
+                    if queen_color:
+                        loser_color = queen_color
+                        game.is_game_over = True
+                        pygame.time.delay(200)
+                    game.change_turn()
+                    turn_panel.update(screen, game.current_state)
+                    timer.reset_timer()
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 clicked_tile = get_clicked_hex(screen, all_tiles, mouse_pos)
