@@ -89,6 +89,8 @@ while game.running:
         for event in pygame.event.get():
             if get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles, game.current_state) == {}:
                 game.change_turn()
+                turn_panel.update(screen, game.current_state)
+                timer.reset_timer()
             if event.type == pygame.QUIT:
                 game.quit()
             if game.selected_opponent =="Human vs Computer" and game.current_state == 'BLACK':

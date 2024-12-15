@@ -170,11 +170,13 @@ def get_valid_moves(piece, game, tiles, tile_dict):
 
     return valid_moves
 
-def get_all_valid_moves_for_color(game,tiles,tile_dict, all_tiles,color):
+def get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles, color):
     valid_moves = {}
     for tile in all_tiles:
         if tile.has_pieces() and tile.pieces[-1].color == color:
-            valid_moves[(tile.pieces[-1],tile.position)] = get_valid_moves(tile.pieces[-1], game, tiles, tile_dict)
+            moves = get_valid_moves(tile.pieces[-1], game, tiles, tile_dict)
+            if moves:
+                valid_moves[(tile.pieces[-1], tile.position)] = moves
     return valid_moves
 
 def human_move(game,tiles,tile_dict, clicked_tile,selected_tile,loser_color,turn_panel,screen,timer,valid_moves,piece):
