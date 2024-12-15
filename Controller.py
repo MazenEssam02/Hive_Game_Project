@@ -358,7 +358,9 @@ def board_value(game,tiles,tile_dict,all_tiles,all_tile_dict):
 
 def minimax(game, tiles, tile_dict,all_tiles, all_tile_dict, depth, maximizing_player):
     if depth == 0:
-        return board_value(game, tiles, tile_dict,all_tiles,all_tile_dict)
+        return None,board_value(game, tiles, tile_dict,all_tiles,all_tile_dict)
+
+    best_move=None
 
     if maximizing_player:
         valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles,"WHITE")
@@ -366,24 +368,25 @@ def minimax(game, tiles, tile_dict,all_tiles, all_tile_dict, depth, maximizing_p
         for (piece, position), moves in valid_moves.items():
             for move in moves:
                 move_piece(piece, position, move, all_tile_dict)
-                value = minimax(game, tiles, tile_dict,all_tiles,all_tile_dict, depth - 1, False)
+                _,value = minimax(game, tiles, tile_dict,all_tiles,all_tile_dict, depth - 1, False)
                 undo_move(piece, position, move, all_tile_dict) # Revert move
                 if value > best_value:
-                    #print("best_value before", best_value)
                     best_value = value
-        return best_value
+                    best_move=(piece,position,move)
+        return best_move,best_value
     else:
         valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles,"BLACK")
         best_value = 1000
         for (piece, position), moves in valid_moves.items():
             for move in moves:
                 move_piece(piece, position, move, all_tile_dict)
-                value = minimax(game, tiles, tile_dict, all_tiles,all_tile_dict,depth - 1, True)
+                _,value = minimax(game, tiles, tile_dict, all_tiles,all_tile_dict,depth - 1, True)
                 undo_move(piece, position, move, all_tile_dict)  # Revert move
                 if value < best_value:
                     best_value = value
+                    best_move=(piece,position,move)
 
-        return best_value
+        return best_move,best_value
 
 def minimax_with_pruning(game, tiles, tile_dict,all_tiles, all_tile_dict, depth, alpha, beta, maximizing_player):
     if depth == 0 or game.is_game_over:
@@ -417,29 +420,12 @@ def minimax_with_pruning(game, tiles, tile_dict,all_tiles, all_tile_dict, depth,
                     print(f"alpha cut off: ({alpha}) , {beta})")
                     break  # Alpha cut-off
         return best_value
-    
-def ai_move(game, tiles, tile_dict, all_tiles, all_tile_dict,depth=1):
-    start_time = time.time()
-    time_limit = 3 * 60 # 3 minutes
-    
-    best_value = 1000
-    best_move = None
-    valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict,all_tiles,game.current_state)
-    for (piece, position), moves in valid_moves.items():
-        for move in moves:
-            if time.time() - start_time > time_limit:
-                return best_move
-            move_piece(piece, position, move, all_tile_dict)
-            value = minimax(game, tiles, tile_dict, all_tiles, all_tile_dict ,depth, True)
-            #value = minimax_with_pruning(game, tiles, tile_dict, all_tiles, all_tile_dict, depth, -1000, 1000, True)
-            print("minimax done")
-            undo_move(piece, position, move, all_tile_dict)
-            if value < best_value:
-                best_value = value
-                best_move = (all_tile_dict[position], tile_dict[move])
 
+def ai_move(game, tiles, tile_dict, all_tiles, all_tile_dict,depth=1):
+    (piece,position,move),value = minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth, False)
+    best_move = (all_tile_dict[position], tile_dict[move])
     return best_move
-            
+
 
 def human_move(game,tiles,tile_dict,all_tiles, all_tile_dict, clicked_tile,selected_tile,loser_color,turn_panel,screen,timer,valid_moves,piece):
     if selected_tile is None:
