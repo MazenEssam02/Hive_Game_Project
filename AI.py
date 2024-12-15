@@ -1,5 +1,5 @@
 from Controller import get_all_valid_moves_for_color, hex_neighbors
-import pygame
+import hex
 class AI:
     def __init__(self, color,difficulty):
         self.color = color
@@ -17,9 +17,21 @@ class AI:
         all_tile_dict[old_position].remove_piece()
         all_tile_dict[new_position].add_piece(piece)
 
+        if piece.piece_type == "Queen Bee":
+                if piece.color == "BLACK":
+                    hex.black_queen_position = new_position
+                elif piece.color == "WHITE":
+                    hex.white_queen_position = new_position
+
     def undo_move(self,piece, old_position, new_position, all_tile_dict):
         all_tile_dict[new_position].remove_piece()
         all_tile_dict[old_position].add_piece(piece)
+
+        if piece.piece_type == "Queen Bee":
+                if piece.color == "BLACK":
+                    hex.black_queen_position = old_position
+                elif piece.color == "WHITE":
+                    hex.white_queen_position = old_position
 
     def count_queenbee_black_surronded(self,tiles_dict):
         black_queenbee = 0

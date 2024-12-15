@@ -1,6 +1,7 @@
 from hex import hex_neighbors
+import hex
 import pygame
-import time
+
 def place_piece(piece, tiles):
     my_neighbors = set()
     opposing_neighbors = set()
@@ -13,6 +14,7 @@ def place_piece(piece, tiles):
                 opposing_neighbors.update([tile.position])  # Add the tile itself
     # Ensure the same tile can't have more than one piece
     valid_moves = [move for move in my_neighbors - opposing_neighbors if not any(tile.position == move and tile.has_pieces() for tile in tiles)]
+
     return valid_moves
 
 def is_piece_on_board(piece, tile_dict):
@@ -28,35 +30,38 @@ def is_queen_on_board(color, tiles):
                     return True
     return False
 
-def is_queen_surrounded(piece, tile_dict):
-    queen_bees = []
-    
-    # Find all neighboring queen bees
-    for neighbor_pos in hex_neighbors(piece.position):
-        neighbor_tile = tile_dict.get(neighbor_pos)
-        if neighbor_tile and neighbor_tile.has_pieces():
-            for neighbor_piece in neighbor_tile.pieces:
-                if neighbor_piece.piece_type == "Queen Bee":
-                    queen_bees.append(neighbor_piece)
-    
-    # Check if each queen bee is surrounded
-    surrounded_queens = []
-    for queen in queen_bees:
-        queen_surrounded = True
-        for neighbor_pos_queen in hex_neighbors(queen.position):
-            neighbor_tile_queen = tile_dict.get(neighbor_pos_queen)
-            if not neighbor_tile_queen or not neighbor_tile_queen.has_pieces():
-                queen_surrounded = False
-                break
-        if queen_surrounded:
-            surrounded_queens.append(queen.color)
-    
-    if len(surrounded_queens) == 2:
-        return "tie"
-    elif len(surrounded_queens) == 1:
-        return surrounded_queens[0]
+def is_queen_surrounded(color, tile_dict):
+    white_queen_surrounded = False
+    black_queen_surrounded = False
+    white_queen = 0
+    black_queen = 0
+    if hex.white_queen_position != None and hex.white_queen_position[0] != -20:
+        white_queen_surrounded = True
+        for neighbor_pos in hex_neighbors(hex.white_queen_position):
+            if not tile_dict[neighbor_pos].has_pieces():
+                white_queen_surrounded = False
+            else:
+                white_queen += 1
+
+    if hex.black_queen_position != None and hex.black_queen_position[0] != -10:
+        black_queen_surrounded = True
+        for neighbor_pos in hex_neighbors(hex.black_queen_position):
+            if not tile_dict[neighbor_pos].has_pieces():
+                black_queen_surrounded = False
+            else:
+                black_queen += 1
+
+    if black_queen_surrounded and white_queen_surrounded:
+        if color == "WHITE":
+            return "BLACK" , white_queen, black_queen
+        else:
+            return "WHITE" , white_queen, black_queen
+    elif white_queen_surrounded:
+        return "WHITE" , white_queen, black_queen
+    elif black_queen_surrounded:
+        return "BLACK" , white_queen, black_queen
     else:
-        return False
+        return False , white_queen, black_queen
 
 def is_hive_connected(tiles, tile_dict):
     visited = set()
@@ -172,7 +177,7 @@ def get_all_valid_moves_for_color(game,tiles,tile_dict, all_tiles,color):
             valid_moves[(tile.pieces[-1],tile.position)] = get_valid_moves(tile.pieces[-1], game, tiles, tile_dict)
     return valid_moves
 
-def human_move(game,tiles,tile_dict,all_tiles, all_tile_dict, clicked_tile,selected_tile,loser_color,turn_panel,screen,timer,valid_moves,piece):
+def human_move(game,tiles,tile_dict, clicked_tile,selected_tile,loser_color,turn_panel,screen,timer,valid_moves,piece):
     if selected_tile is None:
         if clicked_tile.pieces:
             # Check if the piece belongs to the current player
@@ -182,8 +187,6 @@ def human_move(game,tiles,tile_dict,all_tiles, all_tile_dict, clicked_tile,selec
                 selected_tile.selected()
                 valid_moves = get_valid_moves(
                     piece, game, tiles, tile_dict)
-                # print("From human move")
-                # print(valid_moves)
                 for move in valid_moves:
                     for tile in tiles:
                         if move == tile.position:
@@ -191,9 +194,8 @@ def human_move(game,tiles,tile_dict,all_tiles, all_tile_dict, clicked_tile,selec
     else:
         if selected_tile != clicked_tile and clicked_tile.position in valid_moves:
             selected_tile.move_piece(clicked_tile)
-            queen_color = is_queen_surrounded(piece, tile_dict)
+            queen_color = is_queen_surrounded(game.current_state, tile_dict)[0]
             if queen_color:
-
                 loser_color = queen_color
                 game.is_game_over=True
                 pygame.time.delay(200)
@@ -206,4 +208,3 @@ def human_move(game,tiles,tile_dict,all_tiles, all_tile_dict, clicked_tile,selec
         for tile in tiles:
             tile.unhighlight()
     return (selected_tile,loser_color,valid_moves,piece)
-

@@ -1,7 +1,9 @@
 import pygame
 from constant import RADIUS, BLUE, HORIZONTAL_SPACING, VERTICAL_SPACING, GREY, DARK_BLUE
 import math
-
+# Global variables to store the positions of the queen bees
+white_queen_position = None
+black_queen_position = None
 
 class hex:
     def __init__(self, row, col, center, color, piece=None):
@@ -40,8 +42,7 @@ class hex:
             rect_y = 0
             offset = rect_x+RADIUS+3
             # Draw the rectangle with the calculated position and size
-            pygame.draw.rect(surface, DARK_BLUE,
-                             (rect_x, rect_y, rect_width, rect_height))
+            pygame.draw.rect(surface, DARK_BLUE,(rect_x, rect_y, rect_width, rect_height))
             # draw pieces inside the rectangle
             for piece in self.pieces:
                 piece.draw(surface, (offset, rect_y+RADIUS))
@@ -66,8 +67,16 @@ class hex:
             self.pieces.remove(piece)
 
     def move_piece(self, new_tile):
+        global white_queen_position, black_queen_position
+        # Update queen bee position if the piece is a queen bee
+        if self.pieces[-1].piece_type == "Queen Bee":
+            if self.pieces[-1].color == "WHITE":
+                white_queen_position = new_tile.position
+            elif self.pieces[-1].color == "BLACK":
+                black_queen_position = new_tile.position
         new_tile.add_piece(self.pieces[-1])
         self.remove_piece()
+
 
     def has_pieces(self):
         if len(self.pieces) > 0:

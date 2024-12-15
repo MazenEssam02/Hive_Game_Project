@@ -4,9 +4,10 @@ from Menus import start_menu, opponent_menu, difficulty_menu, end_menu
 from inventory import Inventory_Frame
 from constant import WIDTH, HEIGHT, WHITE, TIMER_EVENT
 from hex import draw_grid, get_clicked_hex, generate_tile_dict
+import hex
 from turn import turn_terminal
 from state import state, TurnTimer
-from Controller import get_valid_moves, is_queen_surrounded, get_all_valid_moves_for_color, human_move
+from Controller import is_queen_surrounded, human_move, get_all_valid_moves_for_color
 from AI import AI
 # init pygame
 pygame.init()
@@ -33,7 +34,7 @@ ai_player_white = AI("WHITE",1)
 
 def init():
     # draw grid
-    global tiles, tile_dict, white_inventory, black_inventory, all_tiles, turn_panel, selected_tile, all_tile_dict
+    global tiles, tile_dict, white_inventory, black_inventory, all_tiles, turn_panel, selected_tile, all_tile_dict, loser_color
     tiles = draw_grid(screen, rows=16, cols=19)
     tile_dict = generate_tile_dict(tiles)
     white_inventory = Inventory_Frame((0, 170), 0, white=True)
@@ -42,7 +43,8 @@ def init():
     black_tiles = black_inventory.draw(screen)
     all_tiles = tiles + white_tiles + black_tiles
     all_tile_dict = generate_tile_dict(all_tiles)
-
+    hex.white_queen_position = None
+    hex.black_queen_position = None
     turn_panel = turn_terminal((screen.get_width() // 2 - 150, 0), 'WHITE')
     selected_tile = None
     loser_color = None
@@ -85,17 +87,19 @@ while game.running:
     # Main game loop
     while game.main_loop:
         for event in pygame.event.get():
+            if get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles, game.current_state) == {}:
+                game.change_turn()
             if event.type == pygame.QUIT:
                 game.quit()
             if game.selected_opponent =="Human vs Computer" and game.current_state == 'BLACK':
                 (piece,tile,new_tile)=ai_player_black.ai_move(game, tiles,tile_dict,all_tiles, all_tile_dict)
                 tile.move_piece(new_tile)
-
-                queen_color = is_queen_surrounded(piece, tile_dict)
+                queen_color = is_queen_surrounded(game.current_state, tile_dict)[0]
                 if queen_color:
                     loser_color = queen_color
                     game.is_game_over = True
                     pygame.time.delay(200)
+                    game.start_end_loop()
                 game.change_turn()
                 turn_panel.update(screen, game.current_state)
                 timer.reset_timer()
@@ -103,22 +107,24 @@ while game.running:
                 if game.current_state == "BLACK":
                     (piece,tile, new_tile) = ai_player_black.ai_move(game, tiles, tile_dict, all_tiles, all_tile_dict)
                     tile.move_piece(new_tile)
-                    queen_color = is_queen_surrounded(piece, tile_dict)
+                    queen_color = is_queen_surrounded(game.current_state, tile_dict)[0]
                     if queen_color:
                         loser_color = queen_color
                         game.is_game_over = True
                         pygame.time.delay(200)
+                        game.start_end_loop()
                     game.change_turn()
                     turn_panel.update(screen, game.current_state)
                     timer.reset_timer()
                 elif game.current_state == "WHITE":
                     (piece,tile, new_tile) = ai_player_white.ai_move(game, tiles, tile_dict, all_tiles, all_tile_dict)
                     tile.move_piece(new_tile)
-                    queen_color = is_queen_surrounded(piece, tile_dict)
+                    queen_color = is_queen_surrounded(game.current_state, tile_dict)[0]
                     if queen_color:
                         loser_color = queen_color
                         game.is_game_over = True
                         pygame.time.delay(200)
+                        game.start_end_loop()
                     game.change_turn()
                     turn_panel.update(screen, game.current_state)
                     timer.reset_timer()
@@ -127,16 +133,16 @@ while game.running:
                 mouse_pos = pygame.mouse.get_pos()
                 clicked_tile = get_clicked_hex(screen, all_tiles, mouse_pos)
                 if clicked_tile:
-                    (selected_tile, loser_color, valid_moves, piece) = human_move(game, tiles, tile_dict,all_tiles, all_tile_dict,
-                                                                                  clicked_tile, selected_tile, loser_color, turn_panel, screen, timer, valid_moves, piece)
+                    (selected_tile, loser_color, valid_moves, piece) = human_move(game, tiles, tile_dict,clicked_tile, selected_tile, loser_color, turn_panel, screen, timer, valid_moves, piece)
                     if game.is_game_over:
                         game.start_end_loop()
             elif event.type == TIMER_EVENT:
                 if timer.get_time() <= 0:
                     game.change_turn()
                     game.turn -= 1
-                    selected_tile.unhighlight()
-                    selected_tile = None
+                    if selected_tile:
+                        selected_tile.unhighlight()
+                        selected_tile = None
                     for tile in tiles:
                         tile.unhighlight()
                     turn_panel.update(screen, game.current_state)
