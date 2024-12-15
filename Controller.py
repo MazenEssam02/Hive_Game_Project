@@ -6,7 +6,7 @@ def place_piece(piece, tiles):
     opposing_neighbors = set()
     for tile in tiles:
         if tile.has_pieces():
-            if tile.pieces[0].color == piece.color:
+            if tile.pieces[-1].color == piece.color:
                 my_neighbors.update(hex_neighbors(tile.position))
             else:
                 opposing_neighbors.update(hex_neighbors(tile.position))
@@ -100,6 +100,42 @@ def doesnt_break_hive(piece,tiles, tile_dict):
     original_tile.pieces.append(piece)
     return False
 
+def can_slide_out(neighbors, tile_dict):
+    free_spaces = []
+    valid_indices = set()  # Use a set to avoid duplicates
+    for i, neighbor_pos in enumerate(neighbors):
+        neighbor_tile = tile_dict.get(neighbor_pos)
+        if not neighbor_tile or not neighbor_tile.has_pieces():
+            free_spaces.append((i, neighbor_pos))
+        
+    # Check if there are at least two adjacent free spaces
+    for i in range(len(free_spaces)):
+        for j in range(i + 1, len(free_spaces)):
+            if free_spaces[i][1] in hex_neighbors(free_spaces[j][1]):
+                valid_indices.add(free_spaces[i][0])
+                valid_indices.add(free_spaces[j][0])
+    return list(valid_indices)
+
+def generate_adjacent_moves(position, tile_dict):
+    valid_moves = []
+    neighbors = hex_neighbors(position)
+    free_indices = can_slide_out(neighbors, tile_dict)
+
+    for i in free_indices:
+        neighbor_pos = neighbors[i]
+        next_index = (i + 1) % len(neighbors)
+        next_neighbor_pos = neighbors[next_index]
+        previous_index = (i - 1) % len(neighbors)
+        previous_neighbor_pos = neighbors[previous_index]
+        
+        if neighbor_pos in tile_dict and not tile_dict[neighbor_pos].has_pieces() and (
+            (next_neighbor_pos in tile_dict and tile_dict[next_neighbor_pos].has_pieces()) or
+            (previous_neighbor_pos in tile_dict and tile_dict[previous_neighbor_pos].has_pieces())
+        ):
+            valid_moves.append(neighbor_pos)
+    
+    return valid_moves
+
 def get_valid_moves(piece, game, tiles, tile_dict):
     valid_moves = []
     if game.turn == 1:
@@ -135,45 +171,6 @@ def get_all_valid_moves_for_color(game,tiles,tile_dict, all_tiles,color):
         if tile.has_pieces() and tile.pieces[-1].color == color:
             valid_moves[(tile.pieces[-1],tile.position)] = get_valid_moves(tile.pieces[-1], game, tiles, tile_dict)
     return valid_moves
-
-def can_slide_out(neighbors, tile_dict):
-    free_spaces = []
-    valid_spaces = set()  # Use a set to avoid duplicates
-    for neighbor_pos in neighbors:
-        neighbor_tile = tile_dict[neighbor_pos]
-        if not neighbor_tile or not neighbor_tile.has_pieces():
-            free_spaces.append(neighbor_pos)
-        
-    # Check if there are at least two adjacent free spaces
-    for i in range(len(free_spaces)):
-        for j in range(i + 1, len(free_spaces)):
-            if free_spaces[i] in hex_neighbors(free_spaces[j]):
-                valid_spaces.add(free_spaces[i])
-                valid_spaces.add(free_spaces[j])
-    return list(valid_spaces)
-
-def can_slide_in(position, tiles, piece):
-    #Todo
-    pass
-
-def generate_adjacent_moves(position, tile_dict):
-    valid_moves = []
-    neighbors = hex_neighbors(position)
-    
-    for i in range(len(neighbors)):
-        neighbor_pos = neighbors[i]
-        next_index = (i + 1) % len(neighbors)
-        next_neighbor_pos = neighbors[next_index]
-        
-        if neighbor_pos in tile_dict and tile_dict[neighbor_pos].has_pieces():
-            if next_neighbor_pos in tile_dict and not tile_dict[next_neighbor_pos].has_pieces():
-                valid_moves.append(next_neighbor_pos)
-        elif neighbor_pos in tile_dict and not tile_dict[neighbor_pos].has_pieces():
-            if next_neighbor_pos in tile_dict and tile_dict[next_neighbor_pos].has_pieces():
-                valid_moves.append(neighbor_pos)
-    
-    return valid_moves
-
 
 def move_piece(piece, old_position, new_position, all_tile_dict):
     all_tile_dict[old_position].remove_piece()
