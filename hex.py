@@ -110,6 +110,8 @@ class Inventory_Tile(hex):
 
 
 def hex_neighbors(hex):
+    if hex is None:
+        return []
     directions = [(0, -2), (-1, -1), (-1, 1), (0, 2), (1, 1), (1, -1)]
     neighbors = []
     for d in directions:
