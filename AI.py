@@ -163,6 +163,7 @@ class AI:
                     best_move = (piece, position, move)
 
             return best_move, best_value
+            
     def minimax_with_pruning(self, game, tiles, tile_dict, all_tiles, all_tile_dict, depth,alpha,beta, maximizing_player):
         color = None
         if maximizing_player:
@@ -229,6 +230,16 @@ class AI:
                     break  # Alpha cut-off
 
             return best_move, best_value
+
+    def iterative_deepening(self,game, tiles, tile_dict, all_tiles, all_tile_dict, max_depth, maximizing_player):
+        best_move = None
+        for depth in range(1, max_depth + 1):
+            if maximizing_player:
+                best_move, value = self.minimax_with_pruning(game, tiles, tile_dict, all_tiles, all_tile_dict, depth, -1000, 1000, True)
+            else:
+                best_move, value = self.minimax_with_pruning(game, tiles, tile_dict, all_tiles, all_tile_dict, depth, -1000, 1000, False)
+            print(f"Depth: {depth}, Best move: {best_move}, Value: {value}")
+        return best_move , value
 
     def ai_move(self,game, tiles, tile_dict, all_tiles, all_tile_dict,depth=3):
         piece=None
