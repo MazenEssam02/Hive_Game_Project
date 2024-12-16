@@ -15,6 +15,7 @@ class state:
         self.play_new_game = False
         self.selected_opponent = None
         self.selected_difficulty = None
+        self.time_up=False
 
     def start_end_loop(self):
         self.difficulitiy_menu = False
@@ -66,6 +67,7 @@ class state:
     def change_turn(self):
         # Increment the turn counter
         self.turn += 1
+        self.time_up=False
         # pygame.time.set_timer(TIMER_EVENT , 1000)
         if self.current_state == 'WHITE':
             self.current_state = 'BLACK'

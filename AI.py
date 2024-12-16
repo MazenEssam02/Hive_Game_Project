@@ -111,7 +111,7 @@ class AI:
         return result
 
     def minimax(self, game, tiles, tile_dict, all_tiles, all_tile_dict, depth, maximizing_player):
-        if depth == 0:
+        if depth == 0 or game.is_game_over or game.time_up:
             return None, self.board_value(game, tiles, tile_dict, all_tiles, all_tile_dict)
 
         best_move = None
