@@ -85,7 +85,7 @@ class state:
 
 class TurnTimer():
     def __init__(self):
-        self.turn_time = 180
+        self.turn_time = 180 # 3 minutes timer
         self.timer_event = TIMER_EVENT
         pygame.time.set_timer(self.timer_event, 1000)
 
