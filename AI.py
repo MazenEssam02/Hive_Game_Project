@@ -1,39 +1,42 @@
-from Controller import get_all_valid_moves_for_color, hex_neighbors,is_queen_surrounded
+from Controller import get_all_valid_moves_for_color, is_queen_surrounded
 import hex
+import time
+
+
 class AI:
-    def __init__(self, color,difficulty):
+    def __init__(self, color, difficulty):
         self.color = color
         self.difficulty = difficulty
+        self.time_limit = 20
         self.piece_values = {
-            "Queen Bee": 1,
-            "Beetle": 3,  # Important for attacking and covering
-            "Spider":5 ,  # Good for pinning pieces
-            "Soldier Ant": 10,  # Excellent mobility for surrounding
-            "Grasshopper": 7,
+            "Queen Bee": 1000,
+            "Beetle": 80,  # Important for attacking and covering
+            "Spider": 40,  # Good for pinning pieces
+            "Soldier Ant": 60,  # Excellent mobility for surrounding
+            "Grasshopper": 30,
         }
 
-
-    def move_piece(self,piece, old_position, new_position, all_tile_dict):
+    def move_piece(self, piece, old_position, new_position, all_tile_dict):
         all_tile_dict[old_position].remove_piece()
         all_tile_dict[new_position].add_piece(piece)
 
         if piece.piece_type == "Queen Bee":
-                if piece.color == "BLACK":
-                    hex.black_queen_position = new_position
-                elif piece.color == "WHITE":
-                    hex.white_queen_position = new_position
+            if piece.color == "BLACK":
+                hex.black_queen_position = new_position
+            elif piece.color == "WHITE":
+                hex.white_queen_position = new_position
 
-    def undo_move(self,piece, old_position, new_position, all_tile_dict):
+    def undo_move(self, piece, old_position, new_position, all_tile_dict):
         all_tile_dict[new_position].remove_piece()
         all_tile_dict[old_position].add_piece(piece)
 
         if piece.piece_type == "Queen Bee":
-                if piece.color == "BLACK":
-                    hex.black_queen_position = old_position
-                elif piece.color == "WHITE":
-                    hex.white_queen_position = old_position
-                
-    def count_pieces(self,tile_dict, color):
+            if piece.color == "BLACK":
+                hex.black_queen_position = old_position
+            elif piece.color == "WHITE":
+                hex.white_queen_position = old_position
+
+    def count_pieces(self, tile_dict, color):
         count = 0
         for tile in tile_dict.values():
             for piece in tile.pieces:
@@ -41,12 +44,12 @@ class AI:
                     count += 1
         return count
 
-    def count_valid_moves(self,game, tiles, tile_dict, all_tiles,color):
-        valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict,all_tiles,color)
+    def count_valid_moves(self, game, tiles, tile_dict, all_tiles, color):
+        valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles, color)
         move_count = sum(len(moves) for moves in valid_moves.values())
         return move_count
 
-    def evaluate_pieces(self,tile_dict, color):
+    def evaluate_pieces(self, tile_dict, color):
         value = 0
         for tile in tile_dict.values():
             for piece in tile.pieces:
@@ -54,7 +57,7 @@ class AI:
                     value += self.piece_values[piece.piece_type]
         return value
 
-    def get_queen_position(self,tiles, color):
+    def get_queen_position(self, tiles, color):
         for tile in tiles:
             if tile.has_pieces():
                 for piece in tile.pieces:
@@ -62,16 +65,16 @@ class AI:
                         return tile.position
         return None
 
-    def get_pieces_positions(self,tile_dict, color):
+    def get_pieces_positions(self, tile_dict, color):
         return [position for position, piece in tile_dict.items() if piece.color == color]
 
-    def distance(self,pos1, pos2):
-        x1, y1 = pos1
-        x2, y2 = pos2
-        return abs(x1 - x2) + abs(y1 - y2)
+    def distance(self, queen, tile):
+        q1, r1 = queen
+        q2, r2 = tile
+        return (abs(q1 - q2) + abs(r1 - r2) + abs(-q1 - r1 + q2 + r2)) // 2
 
-    def scoreBoard(self,game, tiles, tile_dict, all_tiles, all_tile_dict):
-        queens_surrounded = is_queen_surrounded(game.current_state, tile_dict)
+    def score_board(self, game, tiles, tile_dict, all_tiles, all_tile_dict,color):
+        queens_surrounded = is_queen_surrounded(color, tile_dict)
         white_surrounded = queens_surrounded[1]
         black_surrounded = queens_surrounded[2]
 
@@ -90,7 +93,7 @@ class AI:
         distance_to_white_queen = sum(self.distance(pos, white_queen_position) for pos in black_pieces_positions)
 
         # Heuristic weights
-        queen_surround_weight = 100  # Increased weight for surrounding the queen
+        queen_surround_weight = 1000  # Increased weight for surrounding the queen
         piece_count_weight = 1
         move_count_weight = 1
         piece_value_weight = 2
@@ -104,61 +107,65 @@ class AI:
 
         return score
 
-    def board_value(self,game,tiles,tile_dict,all_tiles,all_tile_dict):
-        result = self.scoreBoard(game,tiles,tile_dict,all_tiles,all_tile_dict)
+    def board_value(self, game, tiles, tile_dict, all_tiles, all_tile_dict,color):
+        result = self.score_board(game, tiles, tile_dict, all_tiles, all_tile_dict,color)
         if game.current_state == "BLACK":
             return result * -1
         return result
 
-    def minimax(self, game, tiles, tile_dict, all_tiles, all_tile_dict, depth, maximizing_player):
-        if depth == 0 or game.is_game_over or game.time_up:
-            return None, self.board_value(game, tiles, tile_dict, all_tiles, all_tile_dict)
+    def minimax(self, game, tiles, tile_dict, all_tiles, all_tile_dict, depth, maximizing_player, start_time):
+        if maximizing_player:
+            color = "WHITE"
+        else:
+            color = "BLACK"
+        if depth == 0 or time.time()-start_time >self.time_limit:
+            return None, self.board_value(game, tiles, tile_dict, all_tiles, all_tile_dict,color)
 
         best_move = None
         place_piece = False
 
         if maximizing_player:
             valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles, "WHITE")
-            best_value = -1000
+            best_value = float("-inf")
             for (piece, position), moves in valid_moves.items():
-                if position[0] in range (-20, 0) and not place_piece:
+                if position[0] in range(-20, 0) and not place_piece:
                     place_piece = True
                     for move in moves:
                         self.move_piece(piece, position, move, all_tile_dict)
-                        _, value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth - 1, False)
+                        _, value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth - 1, False,start_time)
                         self.undo_move(piece, position, move, all_tile_dict)  # Revert move
                         place_value = value - self.piece_values[piece.piece_type]  # General value for placing piece
-                elif position[0] in range (-20, 0) and place_piece:
+                elif position[0] in range(-20, 0) and place_piece:
                     value = place_value + self.piece_values[piece.piece_type]
                 else:
                     for move in moves:
                         self.move_piece(piece, position, move, all_tile_dict)
-                        _, value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth - 1, False)
+                        _, value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth - 1, False, start_time)
                         self.undo_move(piece, position, move, all_tile_dict)
-                if value > best_value:
+                if value > best_value or value == best_value:
                     best_value = value
                     best_move = (piece, position, move)
 
             return best_move, best_value
         else:
             valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles, "BLACK")
-            best_value = 1000
+            best_value = float("inf")
             for (piece, position), moves in valid_moves.items():
-                if position[0] in range (-20, 0) and not place_piece:
+                if position[0] in range(-20, 0) and not place_piece:
                     place_piece = True
                     for move in moves:
                         self.move_piece(piece, position, move, all_tile_dict)
-                        _, value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth - 1, True)
+                        _, value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth - 1, True, start_time)
                         self.undo_move(piece, position, move, all_tile_dict)  # Revert move
                         place_value = value + self.piece_values[piece.piece_type]  # General value for placing piece
-                elif position[0] in range (-20, 0) and place_piece:
+                elif position[0] in range(-20, 0) and place_piece:
                     value = place_value - self.piece_values[piece.piece_type]
                 else:
                     for move in moves:
                         self.move_piece(piece, position, move, all_tile_dict)
-                        _, value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth - 1, False)
+                        _, value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth - 1, False, start_time)
                         self.undo_move(piece, position, move, all_tile_dict)
-                if value < best_value:
+                if value < best_value or value == best_value:
                     best_value = value
                     best_move = (piece, position, move)
 
@@ -241,13 +248,25 @@ class AI:
             print(f"Depth: {depth}, Best move: {best_move}, Value: {value}")
         return best_move , value
 
-    def ai_move(self,game, tiles, tile_dict, all_tiles, all_tile_dict,depth=3):
-        piece=None
+    def ai_move(self, game, tiles, tile_dict, all_tiles, all_tile_dict, depth=2):
+        piece = None
         position = None
         move = None
-        if(self.color == "BLACK"):
-             (piece, position, move), value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth, False)
-        elif(self.color == "WHITE"):
-            (piece, position, move), value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth, True)
-        best_move = (piece,all_tile_dict[position], tile_dict[move])
+        best_value = 1000
+        start_time = time.time()
+        best_move = False
+        valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles, self.color)
+        if self.color == "BLACK":
+            for (piece, position), moves in valid_moves.items():
+                for move in moves:
+                    self.move_piece(piece, position, move, all_tile_dict)
+                    _,value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth, False,start_time)
+                    self.undo_move(piece, position, move, all_tile_dict)
+                    if value < best_value:
+                        best_value = value
+                        best_move = (piece, all_tile_dict[position], tile_dict[move])
+            return best_move
+        elif self.color == "WHITE":
+            (piece, position, move), value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth, True, start_time)
+        best_move = (piece, all_tile_dict[position], tile_dict[move])
         return best_move
