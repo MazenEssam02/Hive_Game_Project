@@ -163,38 +163,83 @@ class AI:
                     best_move = (piece, position, move)
 
             return best_move, best_value
-    def minimax_with_pruning(self,game, tiles, tile_dict,all_tiles, all_tile_dict, depth, alpha, beta, maximizing_player):
-        if depth == 0 or game.is_game_over:
-            return self.board_value(game, tiles, tile_dict,all_tiles,all_tile_dict)
+            
+    def minimax_with_pruning(self, game, tiles, tile_dict, all_tiles, all_tile_dict, depth,alpha,beta, maximizing_player):
+        color = None
+        if maximizing_player:
+            color = "WHITE"
+        else :
+            color = "BLACK"
+        if depth == 0:
+            return None, self.board_value(game, tiles, tile_dict, all_tiles, all_tile_dict, color)
+        
+        best_move = None
+        place_piece = False
 
         if maximizing_player:
-            valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict,all_tiles,"WHITE")
+            valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles, "WHITE")
             best_value = -1000
             for (piece, position), moves in valid_moves.items():
-                for move in moves:
-                    self.move_piece(piece, position, move, all_tile_dict)
-                    value = self.minimax_with_pruning(game, tiles, tile_dict, all_tiles, all_tile_dict, depth - 1, alpha, beta, False)
-                    self.undo_move(piece, position, move, all_tile_dict)  # Revert move
-                    best_value = max(best_value, value)
-                    alpha = max(alpha, value)
-                    if beta <= alpha:
-                        print(f"beta cut off: ({alpha}) , {beta})")
-                        break  # Beta cut-off
-            return best_value
+                if position[0] in range (-20, 0) and not place_piece:
+                    place_piece = True
+                    for move in moves:
+                        self.move_piece(piece, position, move, all_tile_dict)
+                        _, value = self.minimax_with_pruning(game, tiles, tile_dict, all_tiles, all_tile_dict, depth - 1, alpha,beta,False)
+                        self.undo_move(piece, position, move, all_tile_dict)  # Revert move
+                        place_value = value - self.piece_values[piece.piece_type]  # General value for placing piece
+                elif position[0] in range (-20, 0) and place_piece:
+                    value = place_value + self.piece_values[piece.piece_type]
+                else:
+                    for move in moves:
+                        self.move_piece(piece, position, move, all_tile_dict)
+                        _, value = self.minimax_with_pruning(game, tiles, tile_dict, all_tiles, all_tile_dict, depth - 1, alpha,beta,False)
+                        self.undo_move(piece, position, move, all_tile_dict)
+                alpha = max(alpha, value)
+                if value > best_value:
+                    best_value = value
+                    best_move = (piece, position, move)
+                if beta <= alpha:
+                    print(f"beta cut off: ({alpha}) , {beta})") # Beta cut-off
+                    break
+
+            return best_move, best_value
         else:
-            valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict,all_tiles,"BLACK")
+            valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles, "BLACK")
             best_value = 1000
             for (piece, position), moves in valid_moves.items():
-                for move in moves:
-                    self.move_piece(piece, position, move, all_tile_dict)
-                    value = self.minimax_with_pruning(game, tiles, tile_dict,all_tiles, all_tile_dict, depth - 1, alpha, beta, True)
-                    self.undo_move(piece, position, move, all_tile_dict)  # Revert move
-                    best_value = min(best_value, value)
-                    beta = min(beta, value)
-                    if beta <= alpha:
-                        print(f"alpha cut off: ({alpha}) , {beta})")
-                        break  # Alpha cut-off
-            return best_value
+                if position[0] in range (-20, 0) and not place_piece:
+                    place_piece = True
+                    for move in moves:
+                        self.move_piece(piece, position, move, all_tile_dict)
+                        _, value = self.minimax_with_pruning(game, tiles, tile_dict, all_tiles, all_tile_dict, depth - 1, alpha,beta,True)
+                        self.undo_move(piece, position, move, all_tile_dict)  # Revert move
+                        place_value = value + self.piece_values[piece.piece_type]  # General value for placing piece
+                elif position[0] in range (-20, 0) and place_piece:
+                    value = place_value - self.piece_values[piece.piece_type]
+                else:
+                    for move in moves:
+                        self.move_piece(piece, position, move, all_tile_dict)
+                        _, value = self.minimax_with_pruning(game, tiles, tile_dict, all_tiles, all_tile_dict, depth - 1, alpha,beta,False)
+                        self.undo_move(piece, position, move, all_tile_dict)
+                beta = min(beta, value)
+                if value < best_value:
+                    best_value = value
+                    best_move = (piece, position, move)
+                if beta <= alpha:
+                    print(f"alpha cut off: ({alpha}) , {beta})")
+                    break  # Alpha cut-off
+
+            return best_move, best_value
+
+    def iterative_deepening(self,game, tiles, tile_dict, all_tiles, all_tile_dict, max_depth, maximizing_player):
+        best_move = None
+        for depth in range(1, max_depth + 1):
+            if maximizing_player:
+                best_move, value = self.minimax_with_pruning(game, tiles, tile_dict, all_tiles, all_tile_dict, depth, -1000, 1000, True)
+            else:
+                best_move, value = self.minimax_with_pruning(game, tiles, tile_dict, all_tiles, all_tile_dict, depth, -1000, 1000, False)
+            print(f"Depth: {depth}, Best move: {best_move}, Value: {value}")
+        return best_move , value
 
     def ai_move(self,game, tiles, tile_dict, all_tiles, all_tile_dict,depth=3):
         piece=None
