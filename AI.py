@@ -248,7 +248,7 @@ class AI:
             print(f"Depth: {depth}, Best move: {best_move}, Value: {value}")
         return best_move , value
 
-    def ai_move(self, game, tiles, tile_dict, all_tiles, all_tile_dict, depth=2):
+    def ai_move(self, game, tiles, tile_dict, all_tiles, all_tile_dict):
         piece = None
         position = None
         move = None
@@ -260,13 +260,13 @@ class AI:
             for (piece, position), moves in valid_moves.items():
                 for move in moves:
                     self.move_piece(piece, position, move, all_tile_dict)
-                    _,value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth, False,start_time)
+                    _,value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, self.difficulty, False,start_time)
                     self.undo_move(piece, position, move, all_tile_dict)
                     if value < best_value:
                         best_value = value
                         best_move = (piece, all_tile_dict[position], tile_dict[move])
             return best_move
         elif self.color == "WHITE":
-            (piece, position, move), value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth, True, start_time)
+            (piece, position, move), value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, self.difficulty, True, start_time)
         best_move = (piece, all_tile_dict[position], tile_dict[move])
         return best_move
