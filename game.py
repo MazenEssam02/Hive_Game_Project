@@ -30,8 +30,12 @@ selected_tile = None
 loser_color = None
 valid_moves = None
 piece = None
-ai_player_black = AI("BLACK", 1)
-ai_player_white = AI("WHITE", 1)
+ai_player_black_easy = AI("BLACK", 1)
+ai_player_black_medium = AI("BLACK", 2)
+ai_player_black_hard = AI("BLACK", 3)
+ai_player_white_easy = AI("WHITE", 1)
+ai_player_white_medium = AI("WHITE", 2)
+ai_player_white_hard = AI("WHITE", 3)
 
 
 # AI move flag
@@ -146,10 +150,18 @@ while game.running:
                 ai_move_in_progress = True  # Prevent other AI threads from starting
 
             # Select the appropriate AI player based on the current state
-            if game.current_state == "BLACK":
-                ai_player = ai_player_black
-            elif game.current_state == "WHITE":
-                ai_player = ai_player_white
+            if game.current_state == "BLACK" and game.selected_difficulty == "Easy":
+                ai_player = ai_player_black_easy
+            elif game.current_state == "BLACK" and game.selected_difficulty == "Medium":
+                ai_player = ai_player_black_medium
+            elif game.current_state == "BLACK" and game.selected_difficulty == "Hard":
+                ai_player = ai_player_black_hard
+            elif game.current_state == "WHITE" and game.selected_difficulty == "Easy":
+                ai_player = ai_player_white_easy
+            elif game.current_state == "WHITE" and game.selected_difficulty == "Medium":
+                ai_player = ai_player_white_medium
+            elif game.current_state == "WHITE" and game.selected_difficulty == "Hard":
+                ai_player = ai_player_white_hard
 
             # Start the AI thread
             ai_thread = threading.Thread(target=ai_thread_function, args=(

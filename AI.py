@@ -7,13 +7,13 @@ class AI:
     def __init__(self, color, difficulty):
         self.color = color
         self.difficulty = difficulty
-        self.time_limit = 20
+        # self.time_limit = 20
         self.piece_values = {
-            "Queen Bee": 1000,
-            "Beetle": 80,  # Important for attacking and covering
-            "Spider": 40,  # Good for pinning pieces
-            "Soldier Ant": 60,  # Excellent mobility for surrounding
-            "Grasshopper": 30,
+            "Queen Bee": 80,
+            "Beetle": 70,  # Important for attacking and covering
+            "Spider": 50,  # Good for pinning pieces
+            "Soldier Ant": 90,  # Excellent mobility for surrounding
+            "Grasshopper": 40,
         }
 
     def move_piece(self, piece, old_position, new_position, all_tile_dict):
@@ -87,24 +87,17 @@ class AI:
         black_piece_value = self.evaluate_pieces(tile_dict, "BLACK")
         white_piece_value = self.evaluate_pieces(tile_dict, "WHITE")
 
-        # New heuristic: distance to white queen
-        white_queen_position = self.get_queen_position(tiles, "WHITE")
-        black_pieces_positions = self.get_pieces_positions(tile_dict, "BLACK")
-        distance_to_white_queen = sum(self.distance(pos, white_queen_position) for pos in black_pieces_positions)
-
         # Heuristic weights
-        queen_surround_weight = 1000  # Increased weight for surrounding the queen
-        piece_count_weight = 1
-        move_count_weight = 1
-        piece_value_weight = 2
-        attack_white_queen_weight = -10  # Negative weight to minimize distance to white queen
+        queen_surround_weight = 1500  # Increased weight for surrounding the queen
+        piece_count_weight = 3
+        move_count_weight = 5
+        piece_value_weight = 4
 
         score = (queen_surround_weight * (-black_surrounded + white_surrounded) +
                  piece_count_weight * (black_piece_count - white_piece_count) +
                  move_count_weight * (black_move_count - white_move_count) +
-                 piece_value_weight * (black_piece_value - white_piece_value) +
-                 attack_white_queen_weight * distance_to_white_queen)
-
+                 piece_value_weight * (black_piece_value - white_piece_value))
+        
         return score
 
     def board_value(self, game, tiles, tile_dict, all_tiles, all_tile_dict,color):
@@ -118,7 +111,7 @@ class AI:
             color = "WHITE"
         else:
             color = "BLACK"
-        if depth == 0 or time.time()-start_time >self.time_limit:
+        if depth == 0 or game.time_up:
             return None, self.board_value(game, tiles, tile_dict, all_tiles, all_tile_dict,color)
 
         best_move = None
@@ -248,25 +241,30 @@ class AI:
             print(f"Depth: {depth}, Best move: {best_move}, Value: {value}")
         return best_move , value
 
-    def ai_move(self, game, tiles, tile_dict, all_tiles, all_tile_dict, depth=2):
+    def ai_move(self, game, tiles, tile_dict, all_tiles, all_tile_dict):
         piece = None
         position = None
         move = None
-        best_value = 1000
+        best_value = float("inf")
         start_time = time.time()
         best_move = False
-        valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles, self.color)
+        if game.turn in (3, 4):
+            # Get valid moves for Queen Bee only
+            valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles, self.color, piece_type="Queen Bee")
+        else:
+            # Get valid moves for all pieces
+            valid_moves = get_all_valid_moves_for_color(game, tiles, tile_dict, all_tiles, self.color)
         if self.color == "BLACK":
             for (piece, position), moves in valid_moves.items():
                 for move in moves:
                     self.move_piece(piece, position, move, all_tile_dict)
-                    _,value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth, False,start_time)
+                    _,value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, self.difficulty, False,start_time)
                     self.undo_move(piece, position, move, all_tile_dict)
                     if value < best_value:
                         best_value = value
                         best_move = (piece, all_tile_dict[position], tile_dict[move])
             return best_move
         elif self.color == "WHITE":
-            (piece, position, move), value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, depth, True, start_time)
+            (piece, position, move), value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, self.difficulty, True, start_time)
         best_move = (piece, all_tile_dict[position], tile_dict[move])
         return best_move
