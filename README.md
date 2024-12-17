@@ -4,26 +4,40 @@ Welcome to the Hive Game Project! This project is an implementation of the Hive 
 
 ## Installation
 
+### From Source
+
 1. Clone the repository:
     ```sh
     git clone https://github.com/MazenEssam02/Hive_Game_Project.git
     cd Hive_Game_Project
     ```
 
-2. Create a virtual environment and activate it:
+2. Install the required dependency:
     ```sh
-    python -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    pip install pygame
     ```
 
-3. Install the required dependencies:
+3. Run the game:
     ```sh
-    pip install -r requirements.txt
+    python game.py
+    ```
+
+### From Release
+
+1. Download the latest release from the [Releases](https://github.com/MazenEssam02/Hive_Game_Project/releases) page.
+
+2. Extract the downloaded zip file.
+
+3. Navigate to the extracted folder.
+
+4. Run the executable:
+    ```sh
+    ./HIVE.exe  # On Windows, double-click `HIVE.exe`
     ```
 
 ## User Manual
 
-To start the game, run the following command:
+To start the game from source, run the following command:
 ```sh
 python game.py
 ```
