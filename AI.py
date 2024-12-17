@@ -270,6 +270,6 @@ class AI:
                         best_move = (piece, all_tile_dict[position], tile_dict[move])
             return best_move
         elif self.color == "WHITE":
-            (piece, position, move), value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, self.difficulty-1, True, start_time)
+            (piece, position, move), value = self.minimax(game, tiles, tile_dict, all_tiles, all_tile_dict, self.difficulty, True, start_time)
         best_move = (piece, all_tile_dict[position], tile_dict[move])
         return best_move
